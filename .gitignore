@@ -1,0 +1,10 @@
+/bin
+/out
+/build
+/run
+/deps/run
+/.idea
+/eclipse
+/.gradle
+/*.iml
+/*.ipr

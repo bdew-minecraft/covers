@@ -1,0 +1,199 @@
+buildscript {
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            name = "gradle plugins"
+            url = "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.7"
+    }
+}
+
+apply plugin: 'scala'
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.matthewprenger.cursegradle'
+
+file "build.properties" withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.config = new ConfigSlurper().parse prop
+}
+
+if (project.hasProperty('forgeOverride')) {
+    config.forge.version = forgeOverride
+}
+
+if (project.hasProperty('buildnum')) {
+    ext.simpleVersion = "${config.covers.version}.${project.buildnum}"
+} else {
+    ext.simpleVersion = "${config.covers.version}-DEV"
+}
+
+version = simpleVersion + '-mc' + config.minecraft.version
+
+group = "net.bdew"
+archivesBaseName = "covers"
+
+minecraft {
+    version = "${config.minecraft.version}-${config.forge.version}"
+    mappings = "${config.minecraft.mappings}"
+    useDepAts = true
+    makeObfSourceJar = false
+    replace("BDLIB_VER", config.bdlib.version)
+    replace("COVERS_VER", simpleVersion.toString())
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "bdew"
+        url = "http://jenkins.bdew.net/maven"
+    }
+    maven {
+        name "JEI"
+        url "http://dvs1.progwml6.com/files/maven"
+    }
+    maven {
+        name "waila"
+        url "http://mobiusstrip.eu/maven"
+    }
+    maven {
+        name "MCMultipart"
+        url "http://maven.amadornes.com/"
+    }
+}
+
+dependencies {
+    compile "net.bdew:bdlib:${config.bdlib.version}-mc${config.minecraft.version}:dev"
+
+    deobfCompile "mezz.jei:jei_${config.minecraft.version}:${config.jei.version}"
+    deobfCompile "mcp.mobius.waila:Waila:${config.waila.version}"
+    deobfCompile "MCMultiPart:MCMultiPart:${config.mcmultipart.version}:universal"
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+sourceSets {
+    main {
+        scala {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'resources'
+        }
+    }
+}
+
+processResources {
+    inputs.property "tokens", minecraft.replacements
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        filter(ReplaceTokens, tokens: minecraft.replacements)
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task apiJar(type: Jar, dependsOn: 'classes') {
+    from(sourceSets.main.output) {
+        include 'net/bdew/covers/api/**'
+    }
+
+    extension = 'jar'
+    classifier = 'api'
+}
+
+
+task sourceJarReal(type: Jar) {
+    // FG has a task named sourceJar that seems to be borked
+    classifier "sources"
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier "dev"
+    duplicatesStrategy "exclude"
+    exclude "**/*.psd"
+}
+
+jar {
+    exclude "**/*.psd"
+}
+
+afterEvaluate { project ->
+    // Fudge the inputs of api/source jars so we get the version after replacements
+    tasks.getByPath(":sourceJarReal").from(tasks.getByPath(":sourceMainScala").outputs.files)
+    tasks.getByPath(":apiJar").from(tasks.getByPath(":sourceMainScala").outputs.files, {
+        include 'net/bdew/covers/api/**'
+    })
+}
+
+artifacts {
+    archives sourceJarReal
+    archives deobfJar
+    archives apiJar
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact deobfJar
+            artifact sourceJarReal
+            artifact apiJar
+        }
+    }
+    repositories {
+        maven {
+            url "file://var/www/maven"
+        }
+    }
+}
+
+curseforge {
+    apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
+    project {
+        id = config.curseforge.id
+
+        releaseType = "alpha"
+        changelog = project.hasProperty("changelog") ? project.changelog : "No changelog available"
+
+        addGameVersion config.minecraft.version
+
+        mainArtifact(jar) {
+            displayName = "Covers ${simpleVersion} (MC ${config.minecraft.version})"
+        }
+
+        addArtifact(deobfJar) {
+            displayName = "Covers ${simpleVersion} Source (MC ${config.minecraft.version})"
+        }
+
+        addArtifact(sourceJarReal) {
+            displayName = "Covers ${simpleVersion} Deobfuscated (MC ${config.minecraft.version})"
+        }
+
+        relations {
+            requiredLibrary 'bdlib'
+            requiredLibrary 'mcmultipart'
+            optionalLibrary 'waila'
+            optionalLibrary 'just-enough-items-jei'
+        }
+    }
+}

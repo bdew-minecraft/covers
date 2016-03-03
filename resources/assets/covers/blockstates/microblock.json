@@ -1,0 +1,23 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "covers:part.special"
+  },
+  "variants": {
+    "multipart": [{}],
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson": {
+            "rotation": [{"y": 180}, {"x": 270}],
+            "translation": [0, 0.17, -0.1],
+            "scale": 0.375
+          },
+          "gui": {
+            "translation": [0.2, 0.2, 0]
+          }
+        }
+      }
+    ]
+  }
+}

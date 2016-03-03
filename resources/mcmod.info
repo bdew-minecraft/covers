@@ -1,0 +1,20 @@
+[
+{
+  "modid": "covers",
+  "name": "Simple Covers",
+  "description": "",
+  "version": "@COVERS_VER@",
+  "url": "htts://bdew.net/",
+  "updateUrl": "",
+  "authorList": [
+    "bdew"
+  ],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  ]
+}
+]
