@@ -19,7 +19,7 @@
 
 package net.bdew.covers.microblock
 
-import net.bdew.covers.microblock.shape.FaceShape
+import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape}
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 
@@ -43,4 +43,5 @@ object MicroblockRegistry {
 
   registerMaterial(defaultMaterial)
   registerShape(FaceShape)
+  registerShape(EdgeShape)
 }

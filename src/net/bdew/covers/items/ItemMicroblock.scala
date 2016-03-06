@@ -22,9 +22,8 @@ package net.bdew.covers.items
 import java.util
 
 import mcmultipart.item.IItemMultipartFactory
-import mcmultipart.multipart.{IMultipart, MultipartHelper, PartSlot}
+import mcmultipart.multipart.{IMultipart, MultipartHelper}
 import net.bdew.covers.microblock._
-import net.bdew.covers.microblock.shape.FaceShape
 import net.bdew.lib.Misc
 import net.bdew.lib.items.BaseItem
 import net.minecraft.client.resources.model.ModelResourceLocation
@@ -47,7 +46,7 @@ object ItemMicroblock extends BaseItem("Part") with IItemMultipartFactory {
 
   def makeStack(material: MicroblockMaterial, shape: MicroblockShape, partSize: Int, stackSize: Int = 1) = {
     val stack = new ItemStack(this, stackSize, 0)
-    stack.setTagCompound(MicroblockData(shape, material, partSize, PartSlot.NORTH).toNBT)
+    stack.setTagCompound(MicroblockData(shape, material, partSize, shape.defaultSlot).toNBT)
     stack
   }
 
@@ -56,7 +55,7 @@ object ItemMicroblock extends BaseItem("Part") with IItemMultipartFactory {
 
   override def getSubItems(item: Item, tab: CreativeTabs, list: util.List[ItemStack]): Unit =
     for (material <- MicroblockRegistry.materials.values; shape <- MicroblockRegistry.shapes.values; size <- shape.validSizes)
-      list.add(makeStack(material, FaceShape, size))
+      list.add(makeStack(material, shape, size))
 
   def createPart(world: World, pos: BlockPos, side: EnumFacing, hit: Vec3, stack: ItemStack, player: EntityPlayer): IMultipart =
     new PartMicroblock(getData(stack).getOrElse(sys.error("Creating part from invalid stack")))

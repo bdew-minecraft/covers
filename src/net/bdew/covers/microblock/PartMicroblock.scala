@@ -56,7 +56,7 @@ class PartMicroblock(var data: MicroblockData) extends Multipart with ISlottedPa
   override def getExtendedState(state: IBlockState): IBlockState =
     super.getExtendedState(state).asInstanceOf[IExtendedBlockState].withProperty(MicroblockData.Property, data)
 
-  override def getSlotMask: util.EnumSet[PartSlot] = util.EnumSet.of(data.slot)
+  override def getSlotMask: util.EnumSet[PartSlot] = data.shape.getSlotMask(data.slot, data.size)
 
   def getBoundingBox = data.shape.getBoundingBox(data.slot, data.size)
 

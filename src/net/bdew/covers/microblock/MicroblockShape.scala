@@ -19,6 +19,8 @@
 
 package net.bdew.covers.microblock
 
+import java.util
+
 import mcmultipart.multipart.PartSlot
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
@@ -37,6 +39,11 @@ abstract class MicroblockShape(val name: String) {
     * @return Set of valid slots that parts of this shape should occupy
     */
   def validSlots: Set[PartSlot]
+
+  /**
+    * @return defailt slot for this shape, used for item form
+    */
+  def defaultSlot: PartSlot
 
   /**
     * Check if a side is fully solid
@@ -60,4 +67,11 @@ abstract class MicroblockShape(val name: String) {
     * @return slot that the new part should take or None if the click shouldn't place a new part
     */
   def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot]
+
+  /**
+    * @param slot main slot of the part
+    * @param size size of the part
+    * @return EnumSet of the slots this part actually occupies
+    */
+  def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
 }

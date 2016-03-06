@@ -28,14 +28,13 @@ import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
-object FaceShape extends MicroblockShape("face") {
+object EdgeShape extends MicroblockShape("edge") {
   override val blockSize = 16
   override val validSizes = Set(1, 2, 4, 8)
-  override val validSlots = PartSlot.FACES.toSet
-  override def defaultSlot = PartSlot.NORTH
+  override val validSlots = PartSlot.EDGES.toSet
+  override val defaultSlot = PartSlot.EDGE_NNZ
 
-  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean =
-    slot == PartSlot.getFaceSlot(side)
+  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
   private def interval(size: Double, positive: Boolean): (Double, Double) =
     if (positive)
@@ -47,12 +46,15 @@ object FaceShape extends MicroblockShape("face") {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
     val doubleSize = size / 16D
-    val axis = slot.f1.getAxis
-    val direction = slot.f1.getAxisDirection
 
-    val (minX, maxX) = if (axis == EnumFacing.Axis.X) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
-    val (minY, maxY) = if (axis == EnumFacing.Axis.Y) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
-    val (minZ, maxZ) = if (axis == EnumFacing.Axis.Z) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
+    val directions = Map(
+      slot.f1.getAxis -> (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
+      slot.f2.getAxis -> (slot.f2.getAxisDirection == EnumFacing.AxisDirection.POSITIVE)
+    )
+
+    val (minX, maxX) = directions.get(EnumFacing.Axis.X).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
+    val (minY, maxY) = directions.get(EnumFacing.Axis.Y).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
+    val (minZ, maxZ) = directions.get(EnumFacing.Axis.Z).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
 
     new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
   }
@@ -62,16 +64,31 @@ object FaceShape extends MicroblockShape("face") {
     val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
-    if (y > 0.7)
-      Some(PartSlot.getFaceSlot(neighbours.top))
-    else if (y < 0.3)
-      Some(PartSlot.getFaceSlot(neighbours.bottom))
-    else if (x > 0.7)
-      Some(PartSlot.getFaceSlot(neighbours.right))
-    else if (x < 0.3)
-      Some(PartSlot.getFaceSlot(neighbours.left))
-    else
-      Some(PartSlot.getFaceSlot(side))
+    if (y > 0.7) {
+      if (x > 0.7) {
+        Some(PartSlot.getEdgeSlot(neighbours.top, neighbours.right))
+      } else if (x < 0.3) {
+        Some(PartSlot.getEdgeSlot(neighbours.top, neighbours.left))
+      } else {
+        Some(PartSlot.getEdgeSlot(side, neighbours.top))
+      }
+    } else if (y < 0.3) {
+      if (x > 0.7) {
+        Some(PartSlot.getEdgeSlot(neighbours.bottom, neighbours.right))
+      } else if (x < 0.3) {
+        Some(PartSlot.getEdgeSlot(neighbours.bottom, neighbours.left))
+      } else {
+        Some(PartSlot.getEdgeSlot(side, neighbours.bottom))
+      }
+    } else {
+      if (x > 0.7) {
+        Some(PartSlot.getEdgeSlot(side, neighbours.right))
+      } else if (x < 0.3) {
+        Some(PartSlot.getEdgeSlot(side, neighbours.left))
+      } else {
+        None
+      }
+    }
   }
 
   override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] =
