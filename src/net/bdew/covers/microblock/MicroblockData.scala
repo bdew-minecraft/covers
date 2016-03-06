@@ -44,7 +44,14 @@ object MicroblockData {
       materialId <- tag.get[String]("material")
       size <- tag.get[Int]("size")
       slotName <- tag.get[String]("slot")
-    } yield MicroblockData(MicroblockRegistry.getShape(shapeId), MicroblockRegistry.getMaterial(materialId), size, PartSlot.valueOf(slotName))
+    } yield {
+      val shape = MicroblockRegistry.getShape(shapeId)
+      val material = MicroblockRegistry.getMaterial(materialId)
+      if (shape.validSizes.contains(size))
+        MicroblockData(shape, material, size, PartSlot.valueOf(slotName))
+      else // Temporary - to prevent people that played with 0.0.1 from breaking their worlds
+        MicroblockData(shape, material, shape.validSizes.toList.sorted.head, PartSlot.valueOf(slotName))
+    }
   }
 
   def readPacket(buf: PacketBuffer) = {

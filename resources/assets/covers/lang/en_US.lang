@@ -1,6 +1,15 @@
-bdew.covers.face.1=%s Cover
-bdew.covers.face.2=%s Panel
-bdew.covers.face.4=%s Half-slab
+bdew.covers.face.2=%s Cover
+bdew.covers.face.4=%s Panel
 bdew.covers.face.8=%s Slab
 
+bdew.covers.edge.2=%s Strip
+bdew.covers.edge.4=%s Post
+bdew.covers.edge.8=%s Column
+
+bdew.covers.corner.2=%s Nook
+bdew.covers.corner.4=%s Corner
+bdew.covers.corner.8=%s Notch
+
 item.covers.Saw.name=Saw
+
+itemGroup.bdew.covers=Simple Covers

@@ -22,7 +22,7 @@ package net.bdew.covers.microblock.shape
 import java.util
 
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.MicroblockShape
+import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
 import net.bdew.covers.misc.FaceHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
@@ -30,7 +30,7 @@ import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object EdgeShape extends MicroblockShape("edge") {
   override val blockSize = 16
-  override val validSizes = Set(1, 2, 4, 8)
+  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.EDGES.toSet
   override val defaultSlot = PartSlot.EDGE_NNZ
 
@@ -66,34 +66,30 @@ object EdgeShape extends MicroblockShape("edge") {
 
     if (y > 0.7) {
       if (x > 0.7) {
-        Some(PartSlot.getEdgeSlot(neighbours.top, neighbours.right))
+        Some(PartSlotMapper.from(neighbours.top, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlot.getEdgeSlot(neighbours.top, neighbours.left))
+        Some(PartSlotMapper.from(neighbours.top, neighbours.left))
       } else {
-        Some(PartSlot.getEdgeSlot(side, neighbours.top))
+        Some(PartSlotMapper.from(side, neighbours.top))
       }
     } else if (y < 0.3) {
       if (x > 0.7) {
-        Some(PartSlot.getEdgeSlot(neighbours.bottom, neighbours.right))
+        Some(PartSlotMapper.from(neighbours.bottom, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlot.getEdgeSlot(neighbours.bottom, neighbours.left))
+        Some(PartSlotMapper.from(neighbours.bottom, neighbours.left))
       } else {
-        Some(PartSlot.getEdgeSlot(side, neighbours.bottom))
+        Some(PartSlotMapper.from(side, neighbours.bottom))
       }
     } else {
       if (x > 0.7) {
-        Some(PartSlot.getEdgeSlot(side, neighbours.right))
+        Some(PartSlotMapper.from(side, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlot.getEdgeSlot(side, neighbours.left))
+        Some(PartSlotMapper.from(side, neighbours.left))
       } else {
         None
       }
     }
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] =
-    if (size > 4)
-      util.EnumSet.of(slot, PartSlot.CENTER)
-    else
-      util.EnumSet.of(slot)
+  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 }

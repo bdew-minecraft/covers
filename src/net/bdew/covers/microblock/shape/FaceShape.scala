@@ -22,7 +22,7 @@ package net.bdew.covers.microblock.shape
 import java.util
 
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.MicroblockShape
+import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
 import net.bdew.covers.misc.FaceHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
@@ -30,7 +30,7 @@ import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object FaceShape extends MicroblockShape("face") {
   override val blockSize = 16
-  override val validSizes = Set(1, 2, 4, 8)
+  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.FACES.toSet
   override def defaultSlot = PartSlot.NORTH
 
@@ -63,20 +63,16 @@ object FaceShape extends MicroblockShape("face") {
     val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7)
-      Some(PartSlot.getFaceSlot(neighbours.top))
+      Some(PartSlotMapper.from(neighbours.top))
     else if (y < 0.3)
-      Some(PartSlot.getFaceSlot(neighbours.bottom))
+      Some(PartSlotMapper.from(neighbours.bottom))
     else if (x > 0.7)
-      Some(PartSlot.getFaceSlot(neighbours.right))
+      Some(PartSlotMapper.from(neighbours.right))
     else if (x < 0.3)
-      Some(PartSlot.getFaceSlot(neighbours.left))
+      Some(PartSlotMapper.from(neighbours.left))
     else
-      Some(PartSlot.getFaceSlot(side))
+      Some(PartSlotMapper.from(side))
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] =
-    if (size > 4)
-      util.EnumSet.of(slot, PartSlot.CENTER)
-    else
-      util.EnumSet.of(slot)
+  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 }

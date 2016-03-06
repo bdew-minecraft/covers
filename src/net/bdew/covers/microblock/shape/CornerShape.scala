@@ -22,7 +22,7 @@ package net.bdew.covers.microblock.shape
 import java.util
 
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.MicroblockShape
+import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
 import net.bdew.covers.misc.FaceHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
@@ -30,9 +30,9 @@ import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CornerShape extends MicroblockShape("corner") {
   override val blockSize = 16
-  override val validSizes = Set(1, 2, 4, 8)
+  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.CORNERS.toSet
-  override val defaultSlot = PartSlot.CORNER_NPN
+  override val defaultSlot = PartSlot.CORNER_NNN
 
   override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
@@ -65,30 +65,20 @@ object CornerShape extends MicroblockShape("corner") {
     val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
-    if (y > 0.7) {
-      if (x > 0.7) {
-        Some(PartSlot.getCornerSlot(side, neighbours.top, neighbours.right))
-      } else if (x < 0.3) {
-        Some(PartSlot.getCornerSlot(side, neighbours.top, neighbours.left))
+    if (y > 0.5) {
+      if (x > 0.5) {
+        Some(PartSlotMapper.from(side, neighbours.top, neighbours.right))
       } else {
-        None
-      }
-    } else if (y < 0.3) {
-      if (x > 0.7) {
-        Some(PartSlot.getCornerSlot(side, neighbours.bottom, neighbours.right))
-      } else if (x < 0.3) {
-        Some(PartSlot.getCornerSlot(side, neighbours.bottom, neighbours.left))
-      } else {
-        None
+        Some(PartSlotMapper.from(side, neighbours.top, neighbours.left))
       }
     } else {
-      None
+      if (x > 0.5) {
+        Some(PartSlotMapper.from(side, neighbours.bottom, neighbours.right))
+      } else {
+        Some(PartSlotMapper.from(side, neighbours.bottom, neighbours.left))
+      }
     }
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] =
-    if (size > 4)
-      util.EnumSet.of(slot, PartSlot.CENTER)
-    else
-      util.EnumSet.of(slot)
+  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 }
