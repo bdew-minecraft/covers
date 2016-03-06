@@ -17,13 +17,18 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.items
+package net.bdew.covers.recipes
 
-import mcmultipart.item.IItemSaw
-import net.bdew.lib.items.BaseItem
-import net.minecraft.item.ItemStack
+import net.minecraftforge.fml.common.registry.GameRegistry
+import net.minecraftforge.oredict.RecipeSorter
 
-object ItemSaw extends BaseItem("Saw") with IItemSaw {
-  setMaxStackSize(1)
-  override def getCuttingStrength(stack: ItemStack): Int = 4
+object Recipes {
+  def register(): Unit = {
+    GameRegistry.addRecipe(RecipeSplitBlock)
+    GameRegistry.addRecipe(RecipeSplitPart)
+    GameRegistry.addRecipe(RecipeCombineParts)
+    RecipeSorter.register("bdew.covers:splitblock", RecipeSplitBlock.getClass, RecipeSorter.Category.SHAPED, "")
+    RecipeSorter.register("bdew.covers:splitpart", RecipeSplitPart.getClass, RecipeSorter.Category.SHAPED, "")
+    RecipeSorter.register("bdew.covers:combine", RecipeCombineParts.getClass, RecipeSorter.Category.SHAPELESS, "")
+  }
 }

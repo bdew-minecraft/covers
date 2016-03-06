@@ -17,13 +17,8 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.items
+package net.bdew.covers.recipes
 
-import mcmultipart.item.IItemSaw
-import net.bdew.lib.items.BaseItem
 import net.minecraft.item.ItemStack
 
-object ItemSaw extends BaseItem("Saw") with IItemSaw {
-  setMaxStackSize(1)
-  override def getCuttingStrength(stack: ItemStack): Int = 4
-}
+case class RecipeMatch(x: Int, y: Int, stack: ItemStack)
