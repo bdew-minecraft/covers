@@ -87,7 +87,7 @@ class PartMicroblock(var data: MicroblockData) extends Multipart with ISlottedPa
   override def getHardness(hit: PartMOP): Float = 0.5f
 
   override def isSideSolid(side: EnumFacing): Boolean =
-    data.shape.isSolid(data.slot, side)
+    data.shape.isSolid(data.slot, data.size, side)
 
   override def getModelPath: String = "covers:microblock"
 }

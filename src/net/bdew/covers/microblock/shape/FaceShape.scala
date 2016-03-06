@@ -27,10 +27,11 @@ import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object FaceShape extends MicroblockShape("face") {
-  override val validSlots = PartSlot.FACES.toSet
+  override val blockSize = 16
   override val validSizes = Set(1, 2, 4, 8)
+  override val validSlots = PartSlot.FACES.toSet
 
-  override def isSolid(slot: PartSlot, side: EnumFacing): Boolean =
+  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean =
     slot == PartSlot.getFaceSlot(side)
 
   private def interval(size: Double, positive: Boolean): (Double, Double) =
@@ -53,20 +54,20 @@ object FaceShape extends MicroblockShape("face") {
     new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
   }
 
-  override def getSlotFromHit(vec: Vec3, side: EnumFacing): PartSlot = {
+  override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
     val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7)
-      PartSlot.getFaceSlot(neighbours.top)
+      Some(PartSlot.getFaceSlot(neighbours.top))
     else if (y < 0.3)
-      PartSlot.getFaceSlot(neighbours.bottom)
+      Some(PartSlot.getFaceSlot(neighbours.bottom))
     else if (x > 0.7)
-      PartSlot.getFaceSlot(neighbours.right)
+      Some(PartSlot.getFaceSlot(neighbours.right))
     else if (x < 0.3)
-      PartSlot.getFaceSlot(neighbours.left)
+      Some(PartSlot.getFaceSlot(neighbours.left))
     else
-      PartSlot.getFaceSlot(side)
+      Some(PartSlot.getFaceSlot(side))
   }
 }

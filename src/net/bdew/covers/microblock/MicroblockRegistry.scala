@@ -31,9 +31,16 @@ object MicroblockRegistry {
   def registerShape(p: MicroblockShape) = shapes += p.name -> p
   def getShape(n: String) = shapes(n)
 
-  def registerMaterial(m: MicroblockMaterial) = materials += (m.id -> m)
-  def getMaterial(n: String) = materials.getOrElse(n, materials("minecraft:stone@0"))
+  val defaultMaterial = MicroblockMaterial(Blocks.stone, 0)
 
-  registerMaterial(MicroblockMaterial(Blocks.stone, 0))
+  def registerMaterial(m: MicroblockMaterial) = {
+    materials += m.id -> m
+    blocks += (m.block, m.meta) -> m
+  }
+
+  def getMaterial(n: String) = materials.getOrElse(n, defaultMaterial)
+  def getMaterial(block: Block, damage: Int) = blocks.get((block, damage))
+
+  registerMaterial(defaultMaterial)
   registerShape(FaceShape)
 }

@@ -23,9 +23,41 @@ import mcmultipart.multipart.PartSlot
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 abstract class MicroblockShape(val name: String) {
-  def validSlots: Set[PartSlot]
+  /**
+    * @return Size of a full block, in terms of sizes used by this shape
+    */
+  def blockSize: Int
+
+  /**
+    * @return Set of valid sizes, shouldn't include blockSize
+    */
   def validSizes: Set[Int]
-  def isSolid(slot: PartSlot, side: EnumFacing): Boolean
+
+  /**
+    * @return Set of valid slots that parts of this shape should occupy
+    */
+  def validSlots: Set[PartSlot]
+
+  /**
+    * Check if a side is fully solid
+    *
+    * @param slot slot of the part being checked
+    * @param side side being checked
+    * @return true if the given part makes the side fully solid
+    */
+  def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean
+
+  /**
+    * @return Bounding box for the part of the given size in the given slot
+    */
   def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB
-  def getSlotFromHit(vec: Vec3, side: EnumFacing): PartSlot
+
+  /**
+    * Determine slot for a new part
+    *
+    * @param vec  hit vector of the click that would place the part
+    * @param side the side that was clicked
+    * @return slot that the new part should take or None if the click shouldn't place a new part
+    */
+  def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot]
 }

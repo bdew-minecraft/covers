@@ -66,11 +66,12 @@ object MicroblockPlacement {
       hitFace = hitFace.getOpposite
     }
 
-    val part = new PartMicroblock(data.copy(slot = data.shape.getSlotFromHit(place, hitFace)))
-
-    if (MultipartHelper.canAddPart(world, blockPos, part))
-      Some(MicroblockPlacement(world, blockPos, part))
-    else
-      None
+    data.shape.getSlotFromHit(place, hitFace) flatMap { slot =>
+      val part = new PartMicroblock(data.copy(slot = slot))
+      if (MultipartHelper.canAddPart(world, blockPos, part))
+        Some(MicroblockPlacement(world, blockPos, part))
+      else
+        None
+    }
   }
 }
