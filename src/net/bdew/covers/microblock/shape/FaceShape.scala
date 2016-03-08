@@ -75,4 +75,7 @@ object FaceShape extends MicroblockShape("face") {
   }
 
   override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
+
+  override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
+  override def combine(size: Int): Option[(MicroblockShape, Int)] = None
 }

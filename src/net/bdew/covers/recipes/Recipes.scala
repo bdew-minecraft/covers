@@ -27,8 +27,8 @@ object Recipes {
     GameRegistry.addRecipe(RecipeSplitBlock)
     GameRegistry.addRecipe(RecipeSplitPart)
     GameRegistry.addRecipe(RecipeCombineParts)
-    RecipeSorter.register("bdew.covers:splitblock", RecipeSplitBlock.getClass, RecipeSorter.Category.SHAPED, "")
-    RecipeSorter.register("bdew.covers:splitpart", RecipeSplitPart.getClass, RecipeSorter.Category.SHAPED, "")
-    RecipeSorter.register("bdew.covers:combine", RecipeCombineParts.getClass, RecipeSorter.Category.SHAPELESS, "")
+    GameRegistry.addRecipe(RecipeReduceShape)
+    GameRegistry.addRecipe(RecipeCombineShapes)
+    RecipeSorter.register("bdew.covers:microblocks", classOf[MicroblockRecipe], RecipeSorter.Category.SHAPED, "")
   }
 }

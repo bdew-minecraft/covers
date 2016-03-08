@@ -17,22 +17,32 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.recipes
+package net.bdew.covers.compat.jei
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
+import java.util
+
+import com.google.common.collect.ImmutableList
+import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.MicroblockRegistry
 import net.bdew.covers.microblock.shape.FaceShape
-import net.bdew.lib.crafting.RecipeMatcher
-import net.minecraft.block.Block
-import net.minecraft.item.{ItemBlock, ItemStack}
+import net.minecraft.item.ItemStack
 
-object RecipeSplitBlock extends MicroblockRecipe {
-  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
-    for {
-      saw <- inv.matchItem(ItemSaw).first()
-      block <- inv.matchItem(_.isInstanceOf[ItemBlock]).and(saw.matchBelow).first() if inv.allMatched
-      blockObj <- Option(Block.getBlockFromItem(block.stack.getItem))
-      material <- MicroblockRegistry.getMaterial(blockObj, block.stack.getItemDamage)
-    } yield ItemMicroblock.makeStack(material, FaceShape, FaceShape.blockSize / 2, 2)
+object MicroblockRecipeCombineBlock extends MicroblockRecipe {
+  override val getInputs: util.List[_] = {
+    val partList = new util.ArrayList[ItemStack]()
+
+    for (x <- MicroblockRegistry.materials.values)
+      partList.add(ItemMicroblock.makeStack(x, FaceShape, 8, 2))
+
+    ImmutableList.of(partList, partList)
+  }
+
+  override val getOutputs: util.List[ItemStack] = {
+    val blockList = new util.ArrayList[ItemStack]()
+
+    for (x <- MicroblockRegistry.materials.values)
+      blockList.add(new ItemStack(x.block, 1, x.meta))
+
+    blockList
   }
 }

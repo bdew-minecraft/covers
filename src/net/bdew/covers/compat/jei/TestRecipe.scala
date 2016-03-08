@@ -17,18 +17,21 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.recipes
+package net.bdew.covers.compat.jei
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
-import net.bdew.lib.crafting.RecipeMatcher
+import java.util
+
+import com.google.common.collect.ImmutableList
+import net.bdew.covers.items.ItemMicroblock
+import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
-object RecipeSplitPart extends MicroblockRecipe {
-  def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
-    for {
-      saw <- inv.matchItem(ItemSaw).first()
-      part <- inv.matchItem(ItemMicroblock).and(saw.matchBelow).first() if inv.allMatched
-      data <- ItemMicroblock.getData(part.stack) if data.size % 2 == 0 && data.shape.validSizes.contains(data.size / 2)
-    } yield ItemMicroblock.makeStack(data.material, data.shape, data.size / 2, 2)
-  }
+object TestRecipe extends MicroblockRecipe {
+  override def getOutputs: util.List[ItemStack] = ImmutableList.of(new ItemStack(ItemMicroblock))
+  override def getInputs: util.List[_] = ImmutableList.of(new ItemStack(Items.lava_bucket))
+}
+
+object TestRecipe2 extends MicroblockRecipe {
+  override def getOutputs: util.List[ItemStack] = ImmutableList.of(new ItemStack(Items.lava_bucket))
+  override def getInputs: util.List[_] = ImmutableList.of(new ItemStack(ItemMicroblock))
 }

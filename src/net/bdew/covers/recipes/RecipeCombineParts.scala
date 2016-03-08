@@ -20,46 +20,22 @@
 package net.bdew.covers.recipes
 
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.shape.FaceShape
-import net.bdew.covers.microblock.{MicroblockData, MicroblockRegistry}
-import net.minecraft.inventory.InventoryCrafting
+import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.world.World
 
-object RecipeCombineParts extends IRecipe {
-  def samePart(parts: List[MicroblockData]): Option[MicroblockData] =
-    if (parts.tail.forall(parts.head.eq)) parts.headOption else None
-
-  def verifyAndGetData(inv: InventoryCrafting): Option[MicroblockData] = {
-    var parts = List.empty[MicroblockData]
-    for (i <- 0 until inv.getWidth; j <- 0 until inv.getHeight; stack <- Option(inv.getStackInRowAndColumn(i, j))) {
-      if (stack.getItem == ItemMicroblock && parts.length < 2)
-        parts :+= ItemMicroblock.getData(stack).getOrElse(return None)
-      else return None
+object RecipeCombineParts extends MicroblockRecipe {
+  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
+    for {
+      first <- inv.matchItem(ItemMicroblock).first()
+      second <- inv.matchItem(ItemMicroblock).and(first.matchRight).first() if inv.allMatched
+      firstData <- ItemMicroblock.getData(first.stack)
+      secondData <- ItemMicroblock.getData(second.stack)
+      if firstData == secondData && (firstData.shape.validSizes.contains(firstData.size * 2) || firstData.shape.blockSize == firstData.size * 2)
+    } yield {
+      if (firstData.shape.blockSize == firstData.size * 2)
+        new ItemStack(firstData.material.block, 1, firstData.material.meta)
+      else
+        ItemMicroblock.makeStack(firstData.material, firstData.shape, firstData.size * 2)
     }
-    if (parts.length == 2 && parts(0) == parts(1)) {
-      val data = parts(0)
-      if (data.shape.validSizes.contains(data.size * 2) || data.shape.blockSize == data.size * 2)
-        Some(data)
-      else
-        None
-    } else None
   }
-
-  override def matches(inv: InventoryCrafting, worldIn: World): Boolean = verifyAndGetData(inv).isDefined
-
-  override def getCraftingResult(inv: InventoryCrafting): ItemStack =
-    verifyAndGetData(inv) map { data =>
-      if (data.size * 2 == data.shape.blockSize)
-        new ItemStack(data.material.block, 1, data.material.meta)
-      else
-        ItemMicroblock.makeStack(data.material, data.shape, data.size * 2)
-    } getOrElse getRecipeOutput
-
-  override def getRemainingItems(inv: InventoryCrafting): Array[ItemStack] = new Array[ItemStack](inv.getSizeInventory)
-
-  override def getRecipeSize: Int = 9
-
-  override def getRecipeOutput: ItemStack = ItemMicroblock.makeStack(MicroblockRegistry.defaultMaterial, FaceShape, 1)
 }

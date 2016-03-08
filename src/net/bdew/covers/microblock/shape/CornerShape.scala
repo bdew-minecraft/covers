@@ -29,7 +29,7 @@ import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CornerShape extends MicroblockShape("corner") {
-  override val blockSize = 16
+  override val blockSize = 64
   override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.CORNERS.toSet
   override val defaultSlot = PartSlot.CORNER_NNN
@@ -81,4 +81,7 @@ object CornerShape extends MicroblockShape("corner") {
   }
 
   override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
+
+  override def reduce(size: Int): Option[(MicroblockShape, Int)] = None
+  override def combine(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
 }

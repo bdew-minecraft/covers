@@ -41,7 +41,7 @@ abstract class MicroblockShape(val name: String) {
   def validSlots: Set[PartSlot]
 
   /**
-    * @return defailt slot for this shape, used for item form
+    * @return default slot for this shape, used for item form
     */
   def defaultSlot: PartSlot
 
@@ -74,4 +74,20 @@ abstract class MicroblockShape(val name: String) {
     * @return EnumSet of the slots this part actually occupies
     */
   def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
+
+  /**
+    * Describe how this shape converts to smaller shapes
+    *
+    * @param size size of current part
+    * @return Shape and size of new part, or None if not valid
+    */
+  def reduce(size: Int): Option[(MicroblockShape, Int)]
+
+  /**
+    * Describe how this shape converts to bigger shapes
+    *
+    * @param size size of current part
+    * @return Shape and size of new part, or None if not valid
+    */
+  def combine(size: Int): Option[(MicroblockShape, Int)]
 }

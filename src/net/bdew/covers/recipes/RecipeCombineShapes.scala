@@ -19,16 +19,18 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
+import net.bdew.covers.items.ItemMicroblock
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
-object RecipeSplitPart extends MicroblockRecipe {
-  def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
+object RecipeCombineShapes extends MicroblockRecipe {
+  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
-      saw <- inv.matchItem(ItemSaw).first()
-      part <- inv.matchItem(ItemMicroblock).and(saw.matchBelow).first() if inv.allMatched
-      data <- ItemMicroblock.getData(part.stack) if data.size % 2 == 0 && data.shape.validSizes.contains(data.size / 2)
-    } yield ItemMicroblock.makeStack(data.material, data.shape, data.size / 2, 2)
+      first <- inv.matchItem(ItemMicroblock).first()
+      second <- inv.matchItem(ItemMicroblock).and(first.matchBelow).first() if inv.allMatched
+      firstData <- ItemMicroblock.getData(first.stack)
+      secondData <- ItemMicroblock.getData(second.stack) if firstData == secondData
+      (newShape, newSize) <- firstData.shape.combine(firstData.size)
+    } yield ItemMicroblock.makeStack(firstData.material, newShape, newSize)
   }
 }

@@ -35,12 +35,17 @@ class CoversJeiPlugin extends BlankModPlugin {
     val toAdd = new util.ArrayList[IRecipeWrapper]()
 
     toAdd.add(MicroblockRecipeCutBlock)
+    toAdd.add(MicroblockRecipeCombineBlock)
 
     for (shape <- MicroblockRegistry.shapes.values; size <- shape.validSizes) {
       if (size % 2 == 0 && shape.validSizes.contains(size / 2))
         toAdd.add(new MicroblockRecipeCutPart(shape, size, shape, size / 2, true))
       if (shape.validSizes.contains(size * 2))
         toAdd.add(new MicroblockRecipeCombinePart(shape, size, shape, size * 2, false))
+      for ((newShape, newSize) <- shape.reduce(size))
+        toAdd.add(new MicroblockRecipeCutPart(shape, size, newShape, newSize, false))
+      for ((newShape, newSize) <- shape.combine(size))
+        toAdd.add(new MicroblockRecipeCombinePart(shape, size, newShape, newSize, true))
     }
 
     registry.addRecipes(toAdd)
