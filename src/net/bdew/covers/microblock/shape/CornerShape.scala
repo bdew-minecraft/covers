@@ -84,4 +84,5 @@ object CornerShape extends MicroblockShape("corner") {
 
   override def reduce(size: Int): Option[(MicroblockShape, Int)] = None
   override def combine(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
+  override def transform(size: Int): Option[(MicroblockShape, Int)] = None
 }

@@ -76,7 +76,7 @@ abstract class MicroblockShape(val name: String) {
   def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
 
   /**
-    * Describe how this shape converts to smaller shapes
+    * Describe how this shape converts to smaller shapes (e.g. Face -> Edge)
     *
     * @param size size of current part
     * @return Shape and size of new part, or None if not valid
@@ -84,10 +84,18 @@ abstract class MicroblockShape(val name: String) {
   def reduce(size: Int): Option[(MicroblockShape, Int)]
 
   /**
-    * Describe how this shape converts to bigger shapes
+    * Describe how this shape converts to bigger shapes (e.g. Edge -> Face)
     *
     * @param size size of current part
     * @return Shape and size of new part, or None if not valid
     */
   def combine(size: Int): Option[(MicroblockShape, Int)]
+
+  /**
+    * Describe how this shape "transforms" to another shape (e.g. Edge <-> Center)
+    *
+    * @param size size of current part
+    * @return Shape and size of new part, or None if not valid
+    */
+  def transform(size: Int): Option[(MicroblockShape, Int)]
 }

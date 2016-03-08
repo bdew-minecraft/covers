@@ -95,4 +95,5 @@ object EdgeShape extends MicroblockShape("edge") {
 
   override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(CornerShape, size)
   override def combine(size: Int): Option[(MicroblockShape, Int)] = Some(FaceShape, size)
+  override def transform(size: Int): Option[(MicroblockShape, Int)] = Some(CenterShape, size)
 }

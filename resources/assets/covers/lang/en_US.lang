@@ -10,6 +10,10 @@ bdew.covers.corner.2=%s Nook
 bdew.covers.corner.4=%s Corner
 bdew.covers.corner.8=%s Notch
 
+bdew.covers.center.2=%s Center Strip
+bdew.covers.center.4=%s Center Post
+bdew.covers.center.8=%s Center Column
+
 item.covers.Saw.name=Saw
 
 itemGroup.bdew.covers=Simple Covers
