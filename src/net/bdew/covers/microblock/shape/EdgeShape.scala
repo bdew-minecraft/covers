@@ -19,11 +19,9 @@
 
 package net.bdew.covers.microblock.shape
 
-import java.util
-
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.FaceHelper
+import net.bdew.covers.misc.AxisHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
@@ -33,8 +31,6 @@ object EdgeShape extends MicroblockShape("edge") {
   override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.EDGES.toSet
   override val defaultSlot = PartSlot.EDGE_NNZ
-
-  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
   private def interval(size: Double, positive: Boolean): (Double, Double) =
     if (positive)
@@ -61,8 +57,8 @@ object EdgeShape extends MicroblockShape("edge") {
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7) {
       if (x > 0.7) {
@@ -90,8 +86,6 @@ object EdgeShape extends MicroblockShape("edge") {
       }
     }
   }
-
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 
   override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(CornerShape, size)
   override def combine(size: Int): Option[(MicroblockShape, Int)] = Some(FaceShape, size)

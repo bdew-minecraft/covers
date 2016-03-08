@@ -19,11 +19,9 @@
 
 package net.bdew.covers.microblock.shape
 
-import java.util
-
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.FaceHelper
+import net.bdew.covers.misc.AxisHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
@@ -62,8 +60,8 @@ object CornerShape extends MicroblockShape("corner") {
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.5) {
       if (x > 0.5) {
@@ -80,9 +78,5 @@ object CornerShape extends MicroblockShape("corner") {
     }
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
-
-  override def reduce(size: Int): Option[(MicroblockShape, Int)] = None
   override def combine(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
-  override def transform(size: Int): Option[(MicroblockShape, Int)] = None
 }

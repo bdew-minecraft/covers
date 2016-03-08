@@ -14,6 +14,10 @@ bdew.covers.center.2=%s Center Strip
 bdew.covers.center.4=%s Center Post
 bdew.covers.center.8=%s Center Column
 
+bdew.covers.hollowface.2=Hollow %s Cover
+bdew.covers.hollowface.4=Hollow %s Panel
+bdew.covers.hollowface.8=Hollow %s Slab
+
 item.covers.Saw.name=Saw
 
 itemGroup.bdew.covers=Simple Covers

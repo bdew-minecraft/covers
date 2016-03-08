@@ -36,7 +36,6 @@ import scala.collection.JavaConversions._
 object MicroblockModelProvider {
   def getModel(block: Block, meta: Int, shape: MicroblockShape, slot: PartSlot, size: Int, state: IModelState): IBakedModel = {
     val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(block.getStateFromMeta(meta))
-    val box = shape.getBoundingBox(slot, size)
     val unpacker = new Unpacker(DefaultVertexFormats.ITEM)
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
 
@@ -48,7 +47,10 @@ object MicroblockModelProvider {
       packed.pipe(unpacker)
       val quad = unpacker.buildAndReset().getQuad()
       val sf = scaleFactors(quad.vertexes.vector)
-      builder.addQuadGeneral(quad.transform(x => clampVertex(x, box, sf)))
+      builder.addQuadsGeneral(
+        for (box <- shape.getRenderingBoundingBoxes(slot, size))
+          yield quad.transform(x => clampVertex(x, box, sf))
+      )
     }
 
     builder.build()

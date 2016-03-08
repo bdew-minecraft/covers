@@ -19,11 +19,9 @@
 
 package net.bdew.covers.microblock.shape
 
-import java.util
-
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.FaceHelper
+import net.bdew.covers.misc.AxisHelper
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
@@ -37,30 +35,20 @@ object FaceShape extends MicroblockShape("face") {
   override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean =
     slot == PartSlot.getFaceSlot(side)
 
-  private def interval(size: Double, positive: Boolean): (Double, Double) =
-    if (positive)
-      (1 - size, 1)
-    else
-      (0, size)
-
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
     val doubleSize = size / 16D
-    val axis = slot.f1.getAxis
-    val direction = slot.f1.getAxisDirection
 
-    val (minX, maxX) = if (axis == EnumFacing.Axis.X) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
-    val (minY, maxY) = if (axis == EnumFacing.Axis.Y) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
-    val (minZ, maxZ) = if (axis == EnumFacing.Axis.Z) interval(doubleSize, direction == EnumFacing.AxisDirection.POSITIVE) else (0D, 1D)
+    val (min, max) = if (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
-    new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
+    AxisHelper.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = FaceHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = FaceHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7)
       Some(PartSlotMapper.from(neighbours.top))
@@ -74,9 +62,6 @@ object FaceShape extends MicroblockShape("face") {
       Some(PartSlotMapper.from(side))
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
-
   override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
-  override def combine(size: Int): Option[(MicroblockShape, Int)] = None
-  override def transform(size: Int): Option[(MicroblockShape, Int)] = None
+  override def hollow(size: Int): Option[(MicroblockShape, Int)] = Some(HollowFaceShape, size)
 }

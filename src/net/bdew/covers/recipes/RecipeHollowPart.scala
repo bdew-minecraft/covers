@@ -19,18 +19,17 @@
 
 package net.bdew.covers.recipes
 
-import net.minecraftforge.fml.common.registry.GameRegistry
-import net.minecraftforge.oredict.RecipeSorter
+import net.bdew.covers.items.ItemMicroblock
+import net.bdew.lib.crafting.RecipeMatcher
+import net.minecraft.item.ItemStack
 
-object Recipes {
-  def register(): Unit = {
-    GameRegistry.addRecipe(RecipeSplitBlock)
-    GameRegistry.addRecipe(RecipeSplitPart)
-    GameRegistry.addRecipe(RecipeCombineParts)
-    GameRegistry.addRecipe(RecipeReduceShape)
-    GameRegistry.addRecipe(RecipeCombineShapes)
-    GameRegistry.addRecipe(RecipeTransformPart)
-    GameRegistry.addRecipe(RecipeHollowPart)
-    RecipeSorter.register("bdew.covers:microblocks", classOf[MicroblockRecipe], RecipeSorter.Category.SHAPED, "")
+object RecipeHollowPart extends MicroblockRecipe {
+  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
+    for {
+      first <- inv.matchItem(ItemMicroblock).first()
+      others = inv.matchItem(ItemMicroblock).all() if inv.at(1, 1).first().isEmpty && inv.allMatched && others.size == 7
+      data <- ItemMicroblock.getData(first.stack) if others.forall(x => ItemMicroblock.getData(x.stack).contains(data))
+      (newShape, newSize) <- data.shape.hollow(data.size)
+    } yield ItemMicroblock.makeStack(data.material, newShape, newSize, 8)
   }
 }

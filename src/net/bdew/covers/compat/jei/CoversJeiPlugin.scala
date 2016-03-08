@@ -48,6 +48,8 @@ class CoversJeiPlugin extends BlankModPlugin {
         toAdd.add(new MicroblockRecipeCombinePart(shape, size, newShape, newSize, true))
       for ((newShape, newSize) <- shape.transform(size))
         toAdd.add(new MicroblockRecipeTransform(shape, size, newShape, newSize))
+      for ((newShape, newSize) <- shape.hollow(size))
+        toAdd.add(new MicroblockRecipeHollowPart(shape, size, newShape, newSize))
     }
 
     registry.addRecipes(toAdd)

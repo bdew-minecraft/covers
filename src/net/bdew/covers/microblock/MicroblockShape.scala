@@ -52,12 +52,17 @@ abstract class MicroblockShape(val name: String) {
     * @param side side being checked
     * @return true if the given part makes the side fully solid
     */
-  def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean
+  def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
   /**
-    * @return Bounding box for the part of the given size in the given slot
+    * @return Bounding box for the whole part of the given size in the given slot
     */
   def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB
+
+  /**
+    * @return List of visible bounding boxes for the part of the given size in the given slot
+    */
+  def getRenderingBoundingBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = List(getBoundingBox(slot, size))
 
   /**
     * Determine slot for a new part
@@ -73,7 +78,7 @@ abstract class MicroblockShape(val name: String) {
     * @param size size of the part
     * @return EnumSet of the slots this part actually occupies
     */
-  def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
+  def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 
   /**
     * Describe how this shape converts to smaller shapes (e.g. Face -> Edge)
@@ -81,7 +86,7 @@ abstract class MicroblockShape(val name: String) {
     * @param size size of current part
     * @return Shape and size of new part, or None if not valid
     */
-  def reduce(size: Int): Option[(MicroblockShape, Int)]
+  def reduce(size: Int): Option[(MicroblockShape, Int)] = None
 
   /**
     * Describe how this shape converts to bigger shapes (e.g. Edge -> Face)
@@ -89,7 +94,7 @@ abstract class MicroblockShape(val name: String) {
     * @param size size of current part
     * @return Shape and size of new part, or None if not valid
     */
-  def combine(size: Int): Option[(MicroblockShape, Int)]
+  def combine(size: Int): Option[(MicroblockShape, Int)] = None
 
   /**
     * Describe how this shape "transforms" to another shape (e.g. Edge <-> Center)
@@ -97,5 +102,13 @@ abstract class MicroblockShape(val name: String) {
     * @param size size of current part
     * @return Shape and size of new part, or None if not valid
     */
-  def transform(size: Int): Option[(MicroblockShape, Int)]
+  def transform(size: Int): Option[(MicroblockShape, Int)] = None
+
+  /**
+    * Describe how this shape changes to a hollow form (e.g. Face <-> Hollow Face)
+    *
+    * @param size size of current part
+    * @return Shape and size of new part, or None if not valid
+    */
+  def hollow(size: Int): Option[(MicroblockShape, Int)] = None
 }

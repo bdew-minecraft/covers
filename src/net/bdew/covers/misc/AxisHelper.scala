@@ -19,13 +19,10 @@
 
 package net.bdew.covers.misc
 
-import net.bdew.lib.render.primitive.{Texture, UV, Vertex}
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.util.EnumFacing.Axis
-import net.minecraft.util.{EnumFacing, Vec3}
-import net.minecraftforge.fml.relauncher.{Side, SideOnly}
+import net.minecraft.util.{AxisAlignedBB, Vec3}
 
-object FaceHelper {
+object AxisHelper {
   def getAxis(vec: Vec3, axis: Axis, neg: Boolean = false) = {
     if (neg) {
       axis match {
@@ -42,12 +39,19 @@ object FaceHelper {
     }
   }
 
-  @SideOnly(Side.CLIENT)
-  def cuboidTexture(v1: Vertex, v2: Vertex, face: EnumFacing, texture: TextureAtlasSprite): Texture = {
-    face.getAxis match {
-      case Axis.X => Texture(texture, UV(v1.y * 16f, v1.z * 16f), UV(v2.y * 16f, v2.z * 16f))
-      case Axis.Z => Texture(texture, UV(v1.x * 16f, v1.y * 16f), UV(v2.x * 16f, v2.y * 16f))
-      case Axis.Y => Texture(texture, UV(v1.z * 16f, v1.x * 16f), UV(v2.z * 16f, v2.x * 16f))
-    }
+  def otherAxes(axis: Axis) = axis match {
+    case Axis.X => (Axis.Y, Axis.Z)
+    case Axis.Y => (Axis.Z, Axis.X)
+    case Axis.Z => (Axis.X, Axis.Y)
   }
+
+  def clampBBOnAxis(box: AxisAlignedBB, axis: Axis, min: Double, max: Double) =
+    new AxisAlignedBB(
+      if (axis == Axis.X && box.minX < min) min else box.minX,
+      if (axis == Axis.Y && box.minY < min) min else box.minY,
+      if (axis == Axis.Z && box.minZ < min) min else box.minZ,
+      if (axis == Axis.X && box.maxX > max) max else box.maxX,
+      if (axis == Axis.Y && box.maxY > max) max else box.maxY,
+      if (axis == Axis.Z && box.maxZ > max) max else box.maxZ
+    )
 }

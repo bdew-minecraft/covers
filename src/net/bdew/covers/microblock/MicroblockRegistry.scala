@@ -19,7 +19,7 @@
 
 package net.bdew.covers.microblock
 
-import net.bdew.covers.microblock.shape.{CenterShape, CornerShape, EdgeShape, FaceShape}
+import net.bdew.covers.microblock.shape._
 import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 
@@ -46,4 +46,5 @@ object MicroblockRegistry {
   registerShape(EdgeShape)
   registerShape(CornerShape)
   registerShape(CenterShape)
+  registerShape(HollowFaceShape)
 }
