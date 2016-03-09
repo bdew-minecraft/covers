@@ -42,7 +42,7 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
     AxisHelper.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
 
-  override def getRenderingBoundingBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = {
+  override def getPartBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = {
     val bb = getBoundingBox(slot, size)
     val (secondary, third) = AxisHelper.otherAxes(slot.f1.getAxis)
     val side = AxisHelper.clampBBOnAxis(bb, secondary, 0.25, 0.75)

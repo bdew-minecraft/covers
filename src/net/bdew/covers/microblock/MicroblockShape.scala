@@ -60,9 +60,9 @@ abstract class MicroblockShape(val name: String) {
   def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB
 
   /**
-    * @return List of visible bounding boxes for the part of the given size in the given slot
+    * @return List of bounding boxes that form the part of the given size in the given slot
     */
-  def getRenderingBoundingBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = List(getBoundingBox(slot, size))
+  def getPartBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = List(getBoundingBox(slot, size))
 
   /**
     * Determine slot for a new part

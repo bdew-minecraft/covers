@@ -58,18 +58,16 @@ class PartMicroblock(var data: MicroblockData) extends Multipart with ISlottedPa
 
   override def getSlotMask: util.EnumSet[PartSlot] = data.shape.getSlotMask(data.slot, data.size)
 
-  def getBoundingBox = data.shape.getBoundingBox(data.slot, data.size)
-
-  override def getRenderBoundingBox: AxisAlignedBB = getBoundingBox
+  override def getRenderBoundingBox: AxisAlignedBB = data.shape.getBoundingBox(data.slot, data.size)
 
   override def addCollisionBoxes(mask: AxisAlignedBB, list: util.List[AxisAlignedBB], collidingEntity: Entity): Unit = {
-    val bb = getBoundingBox
-    if (mask.intersectsWith(bb))
+    for (bb <- data.shape.getPartBoxes(data.slot, data.size) if mask.intersectsWith(bb))
       list.add(bb)
   }
 
   override def addSelectionBoxes(list: util.List[AxisAlignedBB]): Unit = {
-    list.add(getBoundingBox)
+    for (bb <- data.shape.getPartBoxes(data.slot, data.size))
+      list.add(bb)
   }
 
   override def getPickBlock(player: EntityPlayer, hit: PartMOP): ItemStack =

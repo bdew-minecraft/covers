@@ -48,7 +48,7 @@ object MicroblockModelProvider {
       val quad = unpacker.buildAndReset().getQuad()
       val sf = scaleFactors(quad.vertexes.vector)
       builder.addQuadsGeneral(
-        for (box <- shape.getRenderingBoundingBoxes(slot, size))
+        for (box <- shape.getPartBoxes(slot, size))
           yield quad.transform(x => clampVertex(x, box, sf))
       )
     }
