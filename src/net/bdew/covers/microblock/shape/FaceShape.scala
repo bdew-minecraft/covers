@@ -19,6 +19,8 @@
 
 package net.bdew.covers.microblock.shape
 
+import java.util
+
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartFace
@@ -44,6 +46,12 @@ object FaceShape extends MicroblockShape("face") {
     val (min, max) = if (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
     CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
+  }
+
+  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
+    val faces = FacesToSlot.find(slot.f1)
+    if (size >= 4) faces.add(PartSlot.CENTER)
+    faces
   }
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {

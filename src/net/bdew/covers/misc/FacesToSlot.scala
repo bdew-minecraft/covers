@@ -19,6 +19,8 @@
 
 package net.bdew.covers.misc
 
+import java.util
+
 import mcmultipart.multipart.PartSlot
 import net.minecraft.util.EnumFacing
 
@@ -27,5 +29,14 @@ object FacesToSlot {
     (Set() ++ Option(slot.f1) ++ Option(slot.f2) ++ Option(slot.f3)) -> slot
   }).toMap
 
-  def from(slot: EnumFacing*) = map(slot.toSet)
+  def from(faces: EnumFacing*) = map(faces.toSet)
+
+  def find(faces: EnumFacing*) = {
+    val faceSet = faces.toSet
+    val found = map.filterKeys(_.intersect(faceSet) == faceSet).values.toSeq
+    if (found.isEmpty)
+      util.EnumSet.noneOf(classOf[PartSlot])
+    else
+      util.EnumSet.of(found.head, found.tail: _*)
+  }
 }

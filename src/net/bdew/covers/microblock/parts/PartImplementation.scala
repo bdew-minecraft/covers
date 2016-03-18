@@ -22,7 +22,7 @@ package net.bdew.covers.microblock.parts
 import java.util
 
 import mcmultipart.microblock.{Microblock, MicroblockClass}
-import mcmultipart.multipart.{ISolidPart, PartSlot}
+import mcmultipart.multipart.{IMultipart, ISlottedPart, ISolidPart, PartSlot}
 import mcmultipart.raytrace.RayTraceUtils.{RayTraceResult, RayTraceResultPart}
 import mcmultipart.raytrace.{PartMOP, RayTraceUtils}
 import net.bdew.covers.microblock.MicroblockShapeProperty
@@ -73,6 +73,15 @@ trait PartImplementation extends Microblock with ISolidPart {
 
   override def getExtendedState(state: IBlockState): IExtendedBlockState =
     super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape)
+
+  override def occlusionTest(part: IMultipart): Boolean = {
+    super.occlusionTest(part) && (
+      if (part.isInstanceOf[ISlottedPart]) {
+        val slots = part.asInstanceOf[ISlottedPart].getSlotMask
+        slots.retainAll(shape.getShadowedSlots(getSlot, getSize))
+        slots.isEmpty
+      } else true)
+  }
 
   override def getModelPath: String = "covers:microblock"
 }

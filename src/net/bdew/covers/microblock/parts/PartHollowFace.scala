@@ -21,7 +21,7 @@ package net.bdew.covers.microblock.parts
 
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.microblock.IMicroblock.IFaceMicroblock
-import mcmultipart.multipart.PartSlot
+import mcmultipart.multipart.{IMultipart, PartSlot}
 import net.bdew.covers.microblock.shape._
 import net.minecraft.util.EnumFacing
 
@@ -30,10 +30,11 @@ class PartHollowFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemo
   override def isEdgeHollow: Boolean = false
   override def isFaceHollow: Boolean = true
 
-  override def isSideSolid(side: EnumFacing): Boolean =
-    if (side == getFace && getContainer != null) {
-      val center = getContainer.getPartInSlot(PartSlot.CENTER)
-      center != null && center.isInstanceOf[PartCenter] && center.asInstanceOf[PartCenter].getSlot.f1.getAxis == getFace.getAxis
-    } else false
+  override def occlusionTest(part: IMultipart): Boolean = {
+    super.occlusionTest(part) && (
+      if (getSize >= 4 && part.isInstanceOf[PartCenter]) {
+        part.asInstanceOf[PartCenter].getSlot.f1.getAxis == getFace.getAxis
+      } else true)
+  }
 }
 

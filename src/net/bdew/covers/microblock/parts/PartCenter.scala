@@ -21,10 +21,18 @@ package net.bdew.covers.microblock.parts
 
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.ISolidPart.ISolidTopPart
-import mcmultipart.multipart.PartSlot
+import mcmultipart.multipart.{IMultipart, ISolidPart, PartSlot}
 import net.bdew.covers.microblock.shape.CenterShape
+import net.bdew.covers.misc.CoverUtils
 import net.minecraft.util.EnumFacing.Axis
 
 class PartCenter(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(CenterShape, material, slot, size, isRemote) with ISolidTopPart {
   override def canPlaceTorchOnTop: Boolean = getSlot.f1.getAxis == Axis.Y
+  override def occlusionTest(part: IMultipart): Boolean =
+    super.occlusionTest(part) && (
+      if (part.isInstanceOf[ISolidPart]) {
+        val axis = getSlot.f1.getAxis
+        val solidPart = part.asInstanceOf[ISolidPart]
+        !solidPart.isSideSolid(CoverUtils.axisToFace(axis, true)) && !solidPart.isSideSolid(CoverUtils.axisToFace(axis, false))
+      } else true)
 }

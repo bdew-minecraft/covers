@@ -19,6 +19,8 @@
 
 package net.bdew.covers.microblock.shape
 
+import java.util
+
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartHollowFace
@@ -66,6 +68,8 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
       AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0.75, 1), tn, sn)
     )
   }
+
+  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = FacesToSlot.find(slot.f1)
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)

@@ -84,6 +84,13 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
   def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
 
   /**
+    * @param slot main slot of the part
+    * @param size size of the part
+    * @return EnumSet of the slots this part prevents other parts from taking
+    */
+  def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
+
+  /**
     * Describe how this shape converts to smaller shapes (e.g. Face -> Edge)
     *
     * @param size size of current part
