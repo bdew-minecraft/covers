@@ -19,6 +19,7 @@
 
 package net.bdew.covers.recipes
 
+import net.bdew.covers.transition.RecipeConvert
 import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.RecipeSorter
 
@@ -31,6 +32,7 @@ object Recipes {
     GameRegistry.addRecipe(RecipeCombineShapes)
     GameRegistry.addRecipe(RecipeTransformPart)
     GameRegistry.addRecipe(RecipeHollowPart)
+    GameRegistry.addRecipe(RecipeConvert)
     RecipeSorter.register("bdew.covers:microblocks", classOf[MicroblockRecipe], RecipeSorter.Category.SHAPED, "")
   }
 }

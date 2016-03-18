@@ -26,7 +26,6 @@ import mcmultipart.microblock.{IMicroMaterial, MicroblockRegistry}
 import mcmultipart.multipart.{IMultipart, MultipartHelper}
 import net.bdew.covers.microblock._
 import net.bdew.covers.microblock.shape.MicroblockShape
-import net.bdew.covers.microblock.transition.OldPartConverter
 import net.bdew.lib.PimpVanilla._
 import net.bdew.lib.items.BaseItem
 import net.bdew.lib.nbt.NBT
@@ -37,13 +36,13 @@ import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.util.{BlockPos, EnumFacing, Vec3}
 import net.minecraft.world.World
 import net.minecraftforge.client.model.ModelLoader
-object ItemMicroblock extends BaseItem("Part") with IItemMultipartFactory {
+
+object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
   setHasSubtypes(true)
 
   case class Data(shape: MicroblockShape, material: IMicroMaterial, size: Int)
 
   def getData(stack: ItemStack) = {
-    if (stack.hasTagCompound) OldPartConverter.convertItemData(stack.getTagCompound)
     for {
       tag <- Option(stack.getTagCompound) if stack.hasTagCompound
       shapeId <- tag.get[String]("shape")
@@ -62,7 +61,7 @@ object ItemMicroblock extends BaseItem("Part") with IItemMultipartFactory {
 
   def makeStack(material: IMicroMaterial, shape: MicroblockShape, partSize: Int, stackSize: Int = 1) = {
     val stack = new ItemStack(this, stackSize, 0)
-    stack.setTagCompound(NBT("shape" -> shape.name, "material" -> material.getName, "size" -> partSize, "v" -> 2))
+    stack.setTagCompound(NBT("shape" -> shape.name, "material" -> material.getName, "size" -> partSize))
     stack
   }
 

@@ -17,7 +17,7 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.microblock.transition
+package net.bdew.covers.transition
 
 import mcmultipart.multipart.Multipart
 

@@ -21,9 +21,11 @@ package net.bdew.covers.config
 
 import net.bdew.covers.Creative
 import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
+import net.bdew.covers.transition.OldItemMicroblock
 import net.bdew.lib.config.ItemManager
 
 object Items extends ItemManager(Creative.main) {
   regItem(ItemSaw)
   regItem(ItemMicroblock)
+  regItem(OldItemMicroblock)
 }

@@ -17,7 +17,7 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.microblock.transition
+package net.bdew.covers.transition
 
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory
 import mcmultipart.multipart.{IMultipart, MultipartRegistry, PartSlot}
@@ -54,22 +54,6 @@ object OldPartConverter extends IAdvancedPartFactory {
     } else null
 
   override def createPart(kind: String, buf: PacketBuffer): IMultipart = null // Should never be called
-
-  def convertItemData(tag: NBTTagCompound) = {
-    if (!tag.hasKey("v")) {
-      for {
-        shapeId <- tag.get[String]("shape")
-        materialId <- tag.get[String]("material")
-        size <- tag.get[Int]("size")
-        shape <- InternalRegistry.shapes.get(shapeId)
-        material <- materialMap.get(materialId)
-      } {
-        tag.set("material", material.getName)
-        tag.set("size", Math.min(if (size > 1) size >> 1 else 1, 4))
-        tag.set("v", 2)
-      }
-    }
-  }
 
   def register(): Unit = {
     MultipartRegistry.registerPartFactory(OldPartConverter, "covers:microblock")

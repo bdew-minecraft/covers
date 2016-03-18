@@ -22,8 +22,8 @@ package net.bdew.covers
 import java.io.File
 
 import net.bdew.covers.config.{Config, Items, TuningLoader}
-import net.bdew.covers.microblock.transition.OldPartConverter
 import net.bdew.covers.recipes.{RecipeSplitBlock, Recipes}
+import net.bdew.covers.transition.OldPartConverter
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.Mod.EventHandler
@@ -61,7 +61,6 @@ object Covers {
   def init(event: FMLInitializationEvent) {
     if (event.getSide.isClient) Config.load(new File(configDir, "client.config"))
     TuningLoader.loadDelayed()
-    FMLInterModComms.sendMessage("Waila", "register", "net.bdew.pressure.waila.WailaHandler.loadCallback")
     Creative.init()
     CraftingManager.getInstance().addRecipe(RecipeSplitBlock)
     Recipes.register()
