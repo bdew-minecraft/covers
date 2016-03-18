@@ -17,15 +17,12 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers
+package net.bdew.covers.microblock.parts
 
-import mcmultipart.multipart.{IMultipart, IPartFactory}
-import net.bdew.covers.microblock.PartMicroblock
+import mcmultipart.microblock.IMicroMaterial
+import mcmultipart.microblock.IMicroblock.IEdgeMicroblock
+import mcmultipart.multipart.PartSlot
+import net.bdew.covers.microblock.shape.EdgeShape
 
-object PartFactory extends IPartFactory {
-  override def createPart(kind: String, client: Boolean): IMultipart =
-    if (kind == "covers:microblock")
-      new PartMicroblock()
-    else
-      null
+class PartEdge(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(EdgeShape, material, slot, size, isRemote) with IEdgeMicroblock {
 }

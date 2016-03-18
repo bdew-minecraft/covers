@@ -21,24 +21,25 @@ package net.bdew.covers.microblock.shape
 
 import java.util
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.MicroblockShape
-import net.bdew.covers.misc.AxisHelper
+import net.bdew.covers.microblock.parts.PartCenter
+import net.bdew.covers.misc.CoverUtils
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CenterShape extends MicroblockShape("center") {
-  override val blockSize = 32
-  override val validSizes = Set(2, 4, 8)
   override val validSlots = Set(PartSlot.NORTH, PartSlot.UP, PartSlot.EAST)
   override val defaultSlot = PartSlot.NORTH
+
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartCenter(material, slot, size, client)
 
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
 
-    val offset = size / 32D
+    val offset = size / 16D
 
     slot match {
       case PartSlot.EAST => new AxisAlignedBB(0, 0.5 - offset, 0.5 - offset, 1, 0.5 + offset, 0.5 + offset)
@@ -51,8 +52,8 @@ object CenterShape extends MicroblockShape("center") {
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
 
-    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (x > 0.25 && x < 0.75 && y > 0.25 && y < 0.75) {
       side.getAxis match {

@@ -20,8 +20,6 @@
 package net.bdew.covers.recipes
 
 import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
-import net.bdew.covers.microblock.MicroblockRegistry
-import net.bdew.covers.microblock.shape.FaceShape
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
@@ -46,5 +44,5 @@ abstract class MicroblockRecipe extends IRecipe {
     res
   }
 
-  override def getRecipeOutput: ItemStack = ItemMicroblock.makeStack(MicroblockRegistry.defaultMaterial, FaceShape, 1)
+  override def getRecipeOutput: ItemStack = new ItemStack(ItemMicroblock)
 }

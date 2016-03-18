@@ -23,18 +23,23 @@ import java.util
 
 import com.google.common.base.Function
 import com.google.common.collect.ImmutableList
+import mcmultipart.client.microblock.{IMicroModelState, MicroblockRegistryClient}
 import mcmultipart.client.multipart.ISmartMultipartModel
+import mcmultipart.microblock.{IMicroMaterial, Microblock}
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.MicroblockData
+import net.bdew.covers.microblock.MicroblockShapeProperty
+import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
+import net.bdew.lib.render.models.SimpleBakedModelBuilder
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemCameraTransforms}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.client.renderer.vertex.VertexFormat
+import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
 import net.minecraft.client.resources.model.IBakedModel
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{EnumFacing, ResourceLocation}
 import net.minecraftforge.client.model._
+import net.minecraftforge.common.property.IExtendedBlockState
 
 object PartModel extends IModel {
   override def getTextures: util.Collection[ResourceLocation] = ImmutableList.of()
@@ -46,16 +51,48 @@ object PartModel extends IModel {
 
 class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFlexibleBakedModel with ISmartItemModel with ISmartMultipartModel {
   lazy val missing = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelManager.getMissingModel
+  val noFaces = util.EnumSet.noneOf(classOf[EnumFacing])
 
-  def buildModel(data: MicroblockData) = {
-    data.material.getModel(data, state)
+  def buildModel(material: IMicroMaterial, boxes: List[AABBHiddenFaces]) = {
+    val provider = MicroblockRegistryClient.getModelProviderFor(material)
+    if (boxes.isEmpty || provider == null) {
+      missing
+    } else if (boxes.size == 1) {
+      provider.provideMicroModel(new IMicroModelState.Impl(material, boxes.head, boxes.head.hidden))
+    } else if (provider.isInstanceOf[MicroblockModelProvider]) {
+      provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes)
+    } else {
+      val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
+      val models = boxes map (box => provider.provideMicroModel(new IMicroModelState.Impl(material, box, box.hidden)))
+
+      builder.texture = models.head.getParticleTexture
+      builder.isGui3d = true
+      builder.setTransformsFromState(state)
+
+      import scala.collection.JavaConversions._
+
+      for (model <- models) {
+        builder.addBakedQuadsGeneral(model.getGeneralQuads.toList)
+        for (face <- EnumFacing.values())
+          builder.addBakedQuads(face, model.getFaceQuads(face).toList)
+      }
+
+      builder.build()
+    }
+
   }
 
   override def handleItemState(stack: ItemStack): IBakedModel =
-    ItemMicroblock.getData(stack) map buildModel getOrElse missing
+    ItemMicroblock.getData(stack) map (data => buildModel(data.material, data.shape.getPartBoxes(data.shape.defaultSlot, data.size))) getOrElse missing
 
-  override def handlePartState(state: IBlockState): IBakedModel =
-    MicroblockData.Property.get(state) map buildModel getOrElse missing
+  override def handlePartState(state: IBlockState): IBakedModel = {
+    val ex = state.asInstanceOf[IExtendedBlockState]
+    val material = ex.getValue(Microblock.PROPERTY_MATERIAL)
+    val shape = ex.getValue(MicroblockShapeProperty)
+    val size = ex.getValue(Microblock.PROPERTY_SIZE)
+    val slot = ex.getValue(Microblock.PROPERTY_SLOT)
+    buildModel(material, shape.getPartBoxes(slot, size))
+  }
 
   override def getFormat: VertexFormat = vertexFormat
   override def getParticleTexture = Client.missingIcon

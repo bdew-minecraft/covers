@@ -1,22 +1,22 @@
-bdew.covers.face.2=%s Cover
-bdew.covers.face.4=%s Panel
-bdew.covers.face.8=%s Slab
+bdew.covers.face.1=%s Cover
+bdew.covers.face.2=%s Panel
+bdew.covers.face.4=%s Slab
 
-bdew.covers.edge.2=%s Strip
-bdew.covers.edge.4=%s Post
-bdew.covers.edge.8=%s Column
+bdew.covers.edge.1=%s Strip
+bdew.covers.edge.2=%s Post
+bdew.covers.edge.4=%s Column
 
-bdew.covers.corner.2=%s Nook
-bdew.covers.corner.4=%s Corner
-bdew.covers.corner.8=%s Notch
+bdew.covers.corner.1=%s Nook
+bdew.covers.corner.2=%s Corner
+bdew.covers.corner.4=%s Notch
 
-bdew.covers.center.2=%s Center Strip
-bdew.covers.center.4=%s Center Post
-bdew.covers.center.8=%s Center Column
+bdew.covers.center.1=%s Center Strip
+bdew.covers.center.2=%s Center Post
+bdew.covers.center.4=%s Center Column
 
-bdew.covers.hollowface.2=Hollow %s Cover
-bdew.covers.hollowface.4=Hollow %s Panel
-bdew.covers.hollowface.8=Hollow %s Slab
+bdew.covers.hollowface.1=Hollow %s Cover
+bdew.covers.hollowface.2=Hollow %s Panel
+bdew.covers.hollowface.4=Hollow %s Slab
 
 item.covers.Saw.name=Saw
 

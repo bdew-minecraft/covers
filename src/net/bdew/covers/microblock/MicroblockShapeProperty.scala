@@ -19,22 +19,7 @@
 
 package net.bdew.covers.microblock
 
-import net.bdew.covers.rendering.MicroblockModelProvider
-import net.minecraft.block.Block
-import net.minecraft.client.resources.model.IBakedModel
-import net.minecraft.item.ItemStack
-import net.minecraftforge.client.model.IModelState
-import net.minecraftforge.fml.relauncher.{Side, SideOnly}
+import net.bdew.covers.microblock.shape.MicroblockShape
+import net.bdew.lib.property.SimpleUnlistedProperty
 
-case class MicroblockMaterial(block: Block, meta: Int) {
-  val stack = new ItemStack(block, 0, meta)
-  val id = block.getRegistryName + "@" + meta
-
-  def sound = block.stepSound
-  def displayName = stack.getDisplayName
-
-  @SideOnly(Side.CLIENT)
-  def getModel(data: MicroblockData, state: IModelState): IBakedModel =
-    MicroblockModelProvider.getModel(block, meta, data.shape, data.slot, data.size, state)
-}
-
+object MicroblockShapeProperty extends SimpleUnlistedProperty("shape", classOf[MicroblockShape])

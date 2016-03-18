@@ -17,23 +17,26 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.microblock
+package net.bdew.covers.microblock.shape
 
 import java.util
 
+import mcmultipart.microblock._
 import mcmultipart.multipart.PartSlot
-import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
+import net.bdew.covers.items.ItemMicroblock
+import net.bdew.covers.microblock.parts.BasePart
+import net.bdew.covers.misc.AABBHiddenFaces
+import net.bdew.lib.Misc
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemStack
+import net.minecraft.util._
+import net.minecraft.world.World
 
-abstract class MicroblockShape(val name: String) {
-  /**
-    * @return Size of a full block, in terms of sizes used by this shape
-    */
-  def blockSize: Int
-
+abstract class MicroblockShape(val name: String) extends MicroblockClass {
   /**
     * @return Set of valid sizes, shouldn't include blockSize
     */
-  def validSizes: Set[Int]
+  def validSizes: Set[Int] = Set(1, 2, 4)
 
   /**
     * @return Set of valid slots that parts of this shape should occupy
@@ -62,7 +65,7 @@ abstract class MicroblockShape(val name: String) {
   /**
     * @return List of bounding boxes that form the part of the given size in the given slot
     */
-  def getPartBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = List(getBoundingBox(slot, size))
+  def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] = List(AABBHiddenFaces.withHiddenFaces(getBoundingBox(slot, size)))
 
   /**
     * Determine slot for a new part
@@ -111,4 +114,27 @@ abstract class MicroblockShape(val name: String) {
     * @return Shape and size of new part, or None if not valid
     */
   def hollow(size: Int): Option[(MicroblockShape, Int)] = None
+
+  /**
+    * @return a new part with the provided data
+    */
+  def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean): BasePart
+
+  // ==== MicroblockClass ====
+
+  override def getType: String = "covers:" + name
+
+  override def getLocalizedName(material: IMicroMaterial, size: Int): String =
+    Misc.toLocalF("bdew.covers." + name + "." + size, material.getLocalizedName)
+
+  override def createStack(material: IMicroMaterial, size: Int, stackSize: Int): ItemStack =
+    ItemMicroblock.makeStack(material, this, size, stackSize)
+
+  override def getPlacement(world: World, pos: BlockPos, material: IMicroMaterial, size: Int, hit: MovingObjectPosition, player: EntityPlayer): MicroblockPlacement =
+    throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
+
+  override def getPlacementGrid: MicroblockPlacementGrid =
+    throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
+
+  override def create(client: Boolean): BasePart = createPart(null, 0, null, false)
 }

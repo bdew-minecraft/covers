@@ -20,9 +20,9 @@
 package net.bdew.covers.misc
 
 import net.minecraft.util.EnumFacing.Axis
-import net.minecraft.util.{AxisAlignedBB, Vec3}
+import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
-object AxisHelper {
+object CoverUtils {
   def getAxis(vec: Vec3, axis: Axis, neg: Boolean = false) = {
     if (neg) {
       axis match {
@@ -43,6 +43,15 @@ object AxisHelper {
     case Axis.X => (Axis.Y, Axis.Z)
     case Axis.Y => (Axis.Z, Axis.X)
     case Axis.Z => (Axis.X, Axis.Y)
+  }
+
+  def axisToFace(axis: Axis, positive: Boolean) = (axis, positive) match {
+    case (Axis.X, true) => EnumFacing.EAST
+    case (Axis.X, false) => EnumFacing.WEST
+    case (Axis.Y, true) => EnumFacing.UP
+    case (Axis.Y, false) => EnumFacing.DOWN
+    case (Axis.Z, true) => EnumFacing.SOUTH
+    case (Axis.Z, false) => EnumFacing.NORTH
   }
 
   def clampBBOnAxis(box: AxisAlignedBB, axis: Axis, min: Double, max: Double) =

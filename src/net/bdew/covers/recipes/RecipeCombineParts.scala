@@ -20,6 +20,7 @@
 package net.bdew.covers.recipes
 
 import net.bdew.covers.items.ItemMicroblock
+import net.bdew.covers.microblock.shape.FaceShape
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
@@ -30,10 +31,10 @@ object RecipeCombineParts extends MicroblockRecipe {
       second <- inv.matchItem(ItemMicroblock).and(first.matchRight).first() if inv.allMatched
       firstData <- ItemMicroblock.getData(first.stack)
       secondData <- ItemMicroblock.getData(second.stack)
-      if firstData == secondData && (firstData.shape.validSizes.contains(firstData.size * 2) || firstData.shape.blockSize == firstData.size * 2)
+      if firstData == secondData && (firstData.shape.validSizes.contains(firstData.size * 2) || (firstData.size == 4 && firstData.shape == FaceShape))
     } yield {
-      if (firstData.shape.blockSize == firstData.size * 2)
-        new ItemStack(firstData.material.block, 1, firstData.material.meta)
+      if (firstData.size == 4 && firstData.shape == FaceShape)
+        firstData.material.getItem.copy()
       else
         ItemMicroblock.makeStack(firstData.material, firstData.shape, firstData.size * 2)
     }

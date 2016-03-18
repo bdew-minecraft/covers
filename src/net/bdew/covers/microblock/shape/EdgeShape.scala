@@ -19,18 +19,19 @@
 
 package net.bdew.covers.microblock.shape
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.AxisHelper
+import net.bdew.covers.microblock.parts.PartEdge
+import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object EdgeShape extends MicroblockShape("edge") {
-  override val blockSize = 32
-  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.EDGES.toSet
   override val defaultSlot = PartSlot.EDGE_NNZ
+
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartEdge(material, slot, size, client)
 
   private def interval(size: Double, positive: Boolean): (Double, Double) =
     if (positive)
@@ -41,7 +42,7 @@ object EdgeShape extends MicroblockShape("edge") {
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
-    val doubleSize = size / 16D
+    val doubleSize = size / 8D
 
     val directions = Map(
       slot.f1.getAxis -> (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
@@ -57,30 +58,30 @@ object EdgeShape extends MicroblockShape("edge") {
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7) {
       if (x > 0.7) {
-        Some(PartSlotMapper.from(neighbours.top, neighbours.right))
+        Some(FacesToSlot.from(neighbours.top, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlotMapper.from(neighbours.top, neighbours.left))
+        Some(FacesToSlot.from(neighbours.top, neighbours.left))
       } else {
-        Some(PartSlotMapper.from(side, neighbours.top))
+        Some(FacesToSlot.from(side, neighbours.top))
       }
     } else if (y < 0.3) {
       if (x > 0.7) {
-        Some(PartSlotMapper.from(neighbours.bottom, neighbours.right))
+        Some(FacesToSlot.from(neighbours.bottom, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlotMapper.from(neighbours.bottom, neighbours.left))
+        Some(FacesToSlot.from(neighbours.bottom, neighbours.left))
       } else {
-        Some(PartSlotMapper.from(side, neighbours.bottom))
+        Some(FacesToSlot.from(side, neighbours.bottom))
       }
     } else {
       if (x > 0.7) {
-        Some(PartSlotMapper.from(side, neighbours.right))
+        Some(FacesToSlot.from(side, neighbours.right))
       } else if (x < 0.3) {
-        Some(PartSlotMapper.from(side, neighbours.left))
+        Some(FacesToSlot.from(side, neighbours.left))
       } else {
         None
       }

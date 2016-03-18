@@ -22,7 +22,7 @@ package net.bdew.covers.config
 import java.io.{File, FileWriter}
 
 import net.bdew.covers.Covers
-import net.bdew.covers.microblock.{MicroblockMaterial, MicroblockRegistry}
+import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.lib.recipes._
 import net.bdew.lib.recipes.gencfg._
 import net.minecraft.block.Block
@@ -55,7 +55,7 @@ object TuningLoader {
               stack.setItemDamage(0)
             }
             val block = Block.getBlockFromItem(stack.getItem)
-            MicroblockRegistry.registerMaterial(MicroblockMaterial(block, stack.getItemDamage))
+            InternalRegistry.registerMaterial(block, stack.getItemDamage)
           } else Covers.logWarn("Item %s is not a block - skipping material registration", stack)
         }
       case _ => super.processConfigStatement(s)

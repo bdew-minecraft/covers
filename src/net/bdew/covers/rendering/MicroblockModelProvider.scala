@@ -19,23 +19,36 @@
 
 package net.bdew.covers.rendering
 
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.MicroblockShape
+import mcmultipart.client.microblock.{IMicroModelProvider, IMicroModelState, MicroblockRegistryClient}
+import mcmultipart.microblock.IMicroMaterial
+import net.bdew.covers.microblock.InternalRegistry
+import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
 import net.bdew.lib.render.Unpacker
 import net.bdew.lib.render.models.SimpleBakedModelBuilder
 import net.bdew.lib.render.primitive.TVertex
 import net.minecraft.block.Block
+import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.client.resources.model.IBakedModel
 import net.minecraft.util.{AxisAlignedBB, EnumFacing}
-import net.minecraftforge.client.model.IModelState
+import net.minecraftforge.client.model.{IModelState, TRSRTransformation}
 
 import scala.collection.JavaConversions._
 
+class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvider {
+  val blockState = Block.getBlockFromItem(material.getItem.getItem).getStateFromMeta(material.getItem.getItemDamage)
+
+  override def provideMicroModel(modelState: IMicroModelState): IBakedModel =
+    MicroblockModelProvider.getModel(blockState, List(AABBHiddenFaces.withHiddenFaces(modelState.getBounds, modelState.getHiddenFaces)), TRSRTransformation.identity())
+
+  def provideMicroModelAdvanced(boxes: List[AABBHiddenFaces]): IBakedModel =
+    MicroblockModelProvider.getModel(blockState, boxes, TRSRTransformation.identity())
+}
+
 object MicroblockModelProvider {
-  def getModel(block: Block, meta: Int, shape: MicroblockShape, slot: PartSlot, size: Int, state: IModelState): IBakedModel = {
-    val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(block.getStateFromMeta(meta))
+  def getModel(blockState: IBlockState, boxes: List[AABBHiddenFaces], state: IModelState): IBakedModel = {
+    val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(blockState)
     val unpacker = new Unpacker(DefaultVertexFormats.ITEM)
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
 
@@ -47,10 +60,7 @@ object MicroblockModelProvider {
       packed.pipe(unpacker)
       val quad = unpacker.buildAndReset().getQuad()
       val sf = scaleFactors(quad.vertexes.vector)
-      builder.addQuadsGeneral(
-        for (box <- shape.getPartBoxes(slot, size))
-          yield quad.transform(x => clampVertex(x, box, sf))
-      )
+      builder.addQuadsGeneral(boxes filterNot (_.hidden.contains(quad.face)) map (box => quad.transform(x => clampVertex(x, box, sf))))
     }
 
     builder.build()
@@ -123,6 +133,11 @@ object MicroblockModelProvider {
     }
 
     TVertex(x, y, z, u, v)
+  }
+
+  def registerProviders(): Unit = {
+    for (material <- InternalRegistry.materials.values)
+      MicroblockRegistryClient.registerMaterialModelProvider(material, new MicroblockModelProvider(material))
   }
 }
 

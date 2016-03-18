@@ -17,15 +17,23 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.microblock
+package net.bdew.covers.microblock.parts
 
+import mcmultipart.microblock.IMicroMaterial
+import mcmultipart.microblock.IMicroblock.IFaceMicroblock
 import mcmultipart.multipart.PartSlot
+import net.bdew.covers.microblock.shape._
 import net.minecraft.util.EnumFacing
 
-object PartSlotMapper {
-  val map = (PartSlot.values() map { slot =>
-    (Set() ++ Option(slot.f1) ++ Option(slot.f2) ++ Option(slot.f3)) -> slot
-  }).toMap
+class PartHollowFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(HollowFaceShape, material, slot, size, isRemote) with IFaceMicroblock {
+  override def getFace: EnumFacing = getSlot.f1
+  override def isEdgeHollow: Boolean = false
+  override def isFaceHollow: Boolean = true
 
-  def from(slot: EnumFacing*) = map(slot.toSet)
+  override def isSideSolid(side: EnumFacing): Boolean =
+    if (side == getFace && getContainer != null) {
+      val center = getContainer.getPartInSlot(PartSlot.CENTER)
+      center != null && center.isInstanceOf[PartCenter] && center.asInstanceOf[PartCenter].getSlot.f1.getAxis == getFace.getAxis
+    } else false
 }
+

@@ -24,14 +24,15 @@ import java.util.Collections
 
 import com.google.common.collect.ImmutableList
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.{MicroblockRegistry, MicroblockShape}
+import net.bdew.covers.microblock.InternalRegistry
+import net.bdew.covers.microblock.shape.MicroblockShape
 import net.minecraft.item.ItemStack
 
 class MicroblockRecipeHollowPart(fromShape: MicroblockShape, fromSize: Int, toShape: MicroblockShape, toSize: Int) extends MicroblockRecipe {
   override val getInputs: util.List[_] = {
     val partList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
+    for (x <- InternalRegistry.materials.values)
       partList.add(ItemMicroblock.makeStack(x, fromShape, fromSize))
 
     ImmutableList.of(
@@ -44,7 +45,7 @@ class MicroblockRecipeHollowPart(fromShape: MicroblockShape, fromSize: Int, toSh
   override val getOutputs: util.List[ItemStack] = {
     val partList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
+    for (x <- InternalRegistry.materials.values)
       partList.add(ItemMicroblock.makeStack(x, toShape, toSize, 8))
 
     partList

@@ -24,7 +24,7 @@ import java.util
 import mezz.jei.api._
 import mezz.jei.api.recipe.IRecipeWrapper
 import net.bdew.covers.Covers
-import net.bdew.covers.microblock.MicroblockRegistry
+import net.bdew.covers.microblock.InternalRegistry
 
 @JEIPlugin
 class CoversJeiPlugin extends BlankModPlugin {
@@ -37,7 +37,7 @@ class CoversJeiPlugin extends BlankModPlugin {
     toAdd.add(MicroblockRecipeCutBlock)
     toAdd.add(MicroblockRecipeCombineBlock)
 
-    for (shape <- MicroblockRegistry.shapes.values; size <- shape.validSizes) {
+    for (shape <- InternalRegistry.shapes.values; size <- shape.validSizes) {
       if (size % 2 == 0 && shape.validSizes.contains(size / 2))
         toAdd.add(new MicroblockRecipeCutPart(shape, size, shape, size / 2, true))
       if (shape.validSizes.contains(size * 2))

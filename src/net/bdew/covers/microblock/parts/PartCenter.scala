@@ -17,18 +17,14 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers
+package net.bdew.covers.microblock.parts
 
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
-import net.minecraftforge.client.model.ModelLoaderRegistry
+import mcmultipart.microblock.IMicroMaterial
+import mcmultipart.multipart.ISolidPart.ISolidTopPart
+import mcmultipart.multipart.PartSlot
+import net.bdew.covers.microblock.shape.CenterShape
+import net.minecraft.util.EnumFacing.Axis
 
-object CoversClient {
-  def preInit(): Unit = {
-    ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
-    PartPlacementRender.init()
-  }
-
-  def init(): Unit = {
-    MicroblockModelProvider.registerProviders()
-  }
+class PartCenter(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(CenterShape, material, slot, size, isRemote) with ISolidTopPart {
+  override def canPlaceTorchOnTop: Boolean = getSlot.f1.getAxis == Axis.Y
 }

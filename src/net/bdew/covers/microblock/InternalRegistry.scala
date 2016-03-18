@@ -19,29 +19,35 @@
 
 package net.bdew.covers.microblock
 
+import mcmultipart.microblock.{BlockMicroMaterial, IMicroMaterial, MicroblockRegistry}
+import net.bdew.covers.Covers
 import net.bdew.covers.microblock.shape._
 import net.minecraft.block.Block
-import net.minecraft.init.Blocks
 
-object MicroblockRegistry {
+object InternalRegistry {
+  case class Material(block: Block, meta: Int)
+
   var shapes = Map.empty[String, MicroblockShape]
-  var materials = Map.empty[String, MicroblockMaterial]
-  var blocks = Map.empty[(Block, Int), MicroblockMaterial]
+  var materials = Map.empty[Material, IMicroMaterial]
 
-  def registerShape(p: MicroblockShape) = shapes += p.name -> p
-  def getShape(n: String) = shapes(n)
-
-  val defaultMaterial = MicroblockMaterial(Blocks.stone, 0)
-
-  def registerMaterial(m: MicroblockMaterial) = {
-    materials += m.id -> m
-    blocks += (m.block, m.meta) -> m
+  def registerShape(p: MicroblockShape): Unit = {
+    MicroblockRegistry.registerMicroClass(p)
+    shapes += p.name -> p
   }
 
-  def getMaterial(n: String) = materials.getOrElse(n, defaultMaterial)
-  def getMaterial(block: Block, damage: Int) = blocks.get((block, damage))
+  def registerMaterial(block: Block, meta: Int): Unit = {
+    val material = new BlockMicroMaterial(block.getStateFromMeta(meta))
+    if (MicroblockRegistry.getMaterial(material.getName) == null) {
+      MicroblockRegistry.registerMaterial(material)
+      materials += Material(block, meta) -> material
+    } else {
+      Covers.logInfo("Material already registered - skipping: %s".format(material.getName))
+      materials += Material(block, meta) -> MicroblockRegistry.getMaterial(material.getName)
+    }
+  }
 
-  registerMaterial(defaultMaterial)
+  def getMaterial(block: Block, meta: Int) = materials.get(Material(block, meta))
+
   registerShape(FaceShape)
   registerShape(EdgeShape)
   registerShape(CornerShape)

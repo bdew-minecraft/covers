@@ -21,9 +21,8 @@ package net.bdew.covers
 
 import java.io.File
 
-import mcmultipart.multipart.MultipartRegistry
 import net.bdew.covers.config.{Config, Items, TuningLoader}
-import net.bdew.covers.microblock.PartMicroblock
+import net.bdew.covers.microblock.transition.OldPartConverter
 import net.bdew.covers.recipes.{RecipeSplitBlock, Recipes}
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraftforge.fml.common.Mod
@@ -52,11 +51,10 @@ object Covers {
   def preInit(event: FMLPreInitializationEvent) {
     log = event.getModLog
     configDir = new File(event.getModConfigurationDirectory, "SimpleCovers")
-    if (event.getSide == Side.CLIENT) CoversClient.preInit()
     TuningLoader.loadConfigFiles()
     Items.load()
-    MultipartRegistry.registerPart(classOf[PartMicroblock], "covers:microblock")
-    MultipartRegistry.registerPartFactory(PartFactory, "covers:microblock")
+    OldPartConverter.register()
+    if (event.getSide == Side.CLIENT) CoversClient.preInit()
   }
 
   @EventHandler
@@ -67,6 +65,7 @@ object Covers {
     Creative.init()
     CraftingManager.getInstance().addRecipe(RecipeSplitBlock)
     Recipes.register()
+    if (event.getSide == Side.CLIENT) CoversClient.init()
   }
 
   @EventHandler

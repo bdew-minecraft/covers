@@ -19,18 +19,19 @@
 
 package net.bdew.covers.microblock.shape
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.AxisHelper
+import net.bdew.covers.microblock.parts.PartCorner
+import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CornerShape extends MicroblockShape("corner") {
-  override val blockSize = 64
-  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.CORNERS.toSet
   override val defaultSlot = PartSlot.CORNER_NNN
+
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartCorner(material, slot, size, client)
 
   override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
@@ -43,7 +44,7 @@ object CornerShape extends MicroblockShape("corner") {
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
-    val doubleSize = size / 16D
+    val doubleSize = size / 8D
 
     val directions = Map(
       slot.f1.getAxis -> (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
@@ -60,20 +61,20 @@ object CornerShape extends MicroblockShape("corner") {
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.5) {
       if (x > 0.5) {
-        Some(PartSlotMapper.from(side, neighbours.top, neighbours.right))
+        Some(FacesToSlot.from(side, neighbours.top, neighbours.right))
       } else {
-        Some(PartSlotMapper.from(side, neighbours.top, neighbours.left))
+        Some(FacesToSlot.from(side, neighbours.top, neighbours.left))
       }
     } else {
       if (x > 0.5) {
-        Some(PartSlotMapper.from(side, neighbours.bottom, neighbours.right))
+        Some(FacesToSlot.from(side, neighbours.bottom, neighbours.right))
       } else {
-        Some(PartSlotMapper.from(side, neighbours.bottom, neighbours.left))
+        Some(FacesToSlot.from(side, neighbours.bottom, neighbours.left))
       }
     }
   }

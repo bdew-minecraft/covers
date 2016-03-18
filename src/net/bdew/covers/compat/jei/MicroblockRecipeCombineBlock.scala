@@ -23,7 +23,7 @@ import java.util
 
 import com.google.common.collect.ImmutableList
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.MicroblockRegistry
+import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.microblock.shape.FaceShape
 import net.minecraft.item.ItemStack
 
@@ -31,7 +31,7 @@ object MicroblockRecipeCombineBlock extends MicroblockRecipe {
   override val getInputs: util.List[_] = {
     val partList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
+    for (x <- InternalRegistry.materials.values)
       partList.add(ItemMicroblock.makeStack(x, FaceShape, 8, 2))
 
     ImmutableList.of(partList, partList)
@@ -40,8 +40,8 @@ object MicroblockRecipeCombineBlock extends MicroblockRecipe {
   override val getOutputs: util.List[ItemStack] = {
     val blockList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
-      blockList.add(new ItemStack(x.block, 1, x.meta))
+    for (x <- InternalRegistry.materials.values)
+      blockList.add(x.getItem)
 
     blockList
   }

@@ -17,18 +17,10 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers
+package net.bdew.covers.microblock.transition
 
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
-import net.minecraftforge.client.model.ModelLoaderRegistry
+import mcmultipart.multipart.Multipart
 
-object CoversClient {
-  def preInit(): Unit = {
-    ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
-    PartPlacementRender.init()
-  }
-
-  def init(): Unit = {
-    MicroblockModelProvider.registerProviders()
-  }
+class PartSelfRemove extends Multipart {
+  override def onLoaded(): Unit = if (getContainer != null) getContainer.removePart(this)
 }

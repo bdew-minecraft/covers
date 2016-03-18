@@ -19,18 +19,19 @@
 
 package net.bdew.covers.microblock.shape
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.AxisHelper
+import net.bdew.covers.microblock.parts.PartFace
+import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object FaceShape extends MicroblockShape("face") {
-  override val blockSize = 16
-  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.FACES.toSet
   override def defaultSlot = PartSlot.NORTH
+
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartFace(material, slot, size, client)
 
   override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean =
     slot == PartSlot.getFaceSlot(side)
@@ -38,28 +39,28 @@ object FaceShape extends MicroblockShape("face") {
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
-    val doubleSize = size / 16D
+    val doubleSize = size / 8D
 
     val (min, max) = if (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
-    AxisHelper.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
+    CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7)
-      Some(PartSlotMapper.from(neighbours.top))
+      Some(FacesToSlot.from(neighbours.top))
     else if (y < 0.3)
-      Some(PartSlotMapper.from(neighbours.bottom))
+      Some(FacesToSlot.from(neighbours.bottom))
     else if (x > 0.7)
-      Some(PartSlotMapper.from(neighbours.right))
+      Some(FacesToSlot.from(neighbours.right))
     else if (x < 0.3)
-      Some(PartSlotMapper.from(neighbours.left))
+      Some(FacesToSlot.from(neighbours.left))
     else
-      Some(PartSlotMapper.from(side))
+      Some(FacesToSlot.from(side))
   }
 
   override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)

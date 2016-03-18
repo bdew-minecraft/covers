@@ -19,56 +19,69 @@
 
 package net.bdew.covers.microblock.shape
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.{MicroblockShape, PartSlotMapper}
-import net.bdew.covers.misc.AxisHelper
+import net.bdew.covers.microblock.parts.PartHollowFace
+import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object HollowFaceShape extends MicroblockShape("hollowface") {
-  override val blockSize = 16
-  override val validSizes = Set(2, 4, 8)
   override val validSlots = PartSlot.FACES.toSet
   override def defaultSlot = PartSlot.NORTH
+
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartHollowFace(material, slot, size, client)
 
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
     require(validSizes.contains(size))
-    val doubleSize = size / 16D
+    val doubleSize = size / 8D
 
     val (min, max) = if (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
-    AxisHelper.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
+    CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
 
-  override def getPartBoxes(slot: PartSlot, size: Int): List[AxisAlignedBB] = {
+  override def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] = {
     val bb = getBoundingBox(slot, size)
-    val (secondary, third) = AxisHelper.otherAxes(slot.f1.getAxis)
-    val side = AxisHelper.clampBBOnAxis(bb, secondary, 0.25, 0.75)
+    val (secondary, third) = CoverUtils.otherAxes(slot.f1.getAxis)
+    val top = CoverUtils.clampBBOnAxis(bb, secondary, 0, 0.25)
+    val side = CoverUtils.clampBBOnAxis(bb, secondary, 0.25, 0.75)
+    val bottom = CoverUtils.clampBBOnAxis(bb, secondary, 0.75, 1)
+
+    val sp = CoverUtils.axisToFace(secondary, true)
+    val sn = CoverUtils.axisToFace(secondary, false)
+    val tp = CoverUtils.axisToFace(third, true)
+    val tn = CoverUtils.axisToFace(third, false)
+
     List(
-      AxisHelper.clampBBOnAxis(bb, secondary, 0, 0.25),
-      AxisHelper.clampBBOnAxis(bb, secondary, 0.75, 1),
-      AxisHelper.clampBBOnAxis(side, third, 0, 0.25),
-      AxisHelper.clampBBOnAxis(side, third, 0.75, 1)
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(top, third, 0, 0.25), tp, sp),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(top, third, 0.25, 0.75), tp, tn),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(top, third, 0.75, 1), tn, sp),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(side, third, 0, 0.25), sp, sn),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(side, third, 0.75, 1), sp, sn),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0, 0.25), tp, sn),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0.25, 0.75), tp, tn),
+      AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0.75, 1), tn, sn)
     )
   }
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
-    val x = AxisHelper.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
-    val y = AxisHelper.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
+    val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
+    val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)
 
     if (y > 0.7)
-      Some(PartSlotMapper.from(neighbours.top))
+      Some(FacesToSlot.from(neighbours.top))
     else if (y < 0.3)
-      Some(PartSlotMapper.from(neighbours.bottom))
+      Some(FacesToSlot.from(neighbours.bottom))
     else if (x > 0.7)
-      Some(PartSlotMapper.from(neighbours.right))
+      Some(FacesToSlot.from(neighbours.right))
     else if (x < 0.3)
-      Some(PartSlotMapper.from(neighbours.left))
+      Some(FacesToSlot.from(neighbours.left))
     else
-      Some(PartSlotMapper.from(side))
+      Some(FacesToSlot.from(side))
   }
 
   override def hollow(size: Int): Option[(MicroblockShape, Int)] = Some(FaceShape, size)

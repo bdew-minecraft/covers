@@ -17,22 +17,16 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.recipes
+package net.bdew.covers.microblock.parts
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
-import net.bdew.covers.microblock.InternalRegistry
+import mcmultipart.microblock.IMicroMaterial
+import mcmultipart.microblock.IMicroblock.IFaceMicroblock
+import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.shape.FaceShape
-import net.bdew.lib.crafting.RecipeMatcher
-import net.minecraft.block.Block
-import net.minecraft.item.{ItemBlock, ItemStack}
+import net.minecraft.util.EnumFacing
 
-object RecipeSplitBlock extends MicroblockRecipe {
-  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
-    for {
-      saw <- inv.matchItem(ItemSaw).first()
-      block <- inv.matchItem(_.isInstanceOf[ItemBlock]).and(saw.matchBelow).first() if inv.allMatched
-      blockObj <- Option(Block.getBlockFromItem(block.stack.getItem))
-      material <- InternalRegistry.getMaterial(blockObj, block.stack.getItemDamage)
-    } yield ItemMicroblock.makeStack(material, FaceShape, 4, 2)
-  }
+class PartFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(FaceShape, material, slot, size, isRemote) with IFaceMicroblock {
+  override def getFace: EnumFacing = getSlot.f1
+  override def isEdgeHollow: Boolean = false
+  override def isFaceHollow: Boolean = false
 }

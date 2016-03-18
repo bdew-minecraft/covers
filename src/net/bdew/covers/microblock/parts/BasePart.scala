@@ -17,18 +17,10 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers
+package net.bdew.covers.microblock.parts
 
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
-import net.minecraftforge.client.model.ModelLoaderRegistry
+import mcmultipart.microblock.{IMicroMaterial, Microblock}
+import mcmultipart.multipart.PartSlot
+import net.bdew.covers.microblock.shape.MicroblockShape
 
-object CoversClient {
-  def preInit(): Unit = {
-    ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
-    PartPlacementRender.init()
-  }
-
-  def init(): Unit = {
-    MicroblockModelProvider.registerProviders()
-  }
-}
+abstract class BasePart(val shape: MicroblockShape, material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends Microblock(material, slot, size, isRemote) with PartImplementation

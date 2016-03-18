@@ -19,12 +19,14 @@
 
 package net.bdew.covers.rendering
 
+import java.util
+
+import mcmultipart.client.microblock.{IMicroModelState, MicroblockRegistryClient}
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.MicroblockPlacement
+import net.bdew.covers.microblock.MicroblockLocation
 import net.bdew.lib.Client
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.client.renderer.{GlStateManager, Tessellator}
-import net.minecraft.client.resources.model.ModelRotation
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.client.model.pipeline.WorldRendererConsumer
@@ -33,6 +35,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.opengl.GL11
 
 object PartPlacementRender {
+  val noFaces = util.EnumSet.noneOf(classOf[EnumFacing])
+
   def init(): Unit = {
     MinecraftForge.EVENT_BUS.register(this)
   }
@@ -44,7 +48,7 @@ object PartPlacementRender {
       world <- Option(Client.world)
       stack <- Option(player.inventory.getCurrentItem) if stack.getItem == ItemMicroblock
       data <- ItemMicroblock.getData(stack)
-      place <- MicroblockPlacement.calculate(world, player.rayTrace(Client.minecraft.playerController.getBlockReachDistance, ev.partialTicks), data)
+      place <- MicroblockLocation.calculate(world, player.rayTrace(Client.minecraft.playerController.getBlockReachDistance, ev.partialTicks), data.shape, data.size, data.material, true)
     } {
       val px = player.lastTickPosX + (player.posX - player.lastTickPosX) * ev.partialTicks
       val py = player.lastTickPosY + (player.posY - player.lastTickPosY) * ev.partialTicks
@@ -57,17 +61,21 @@ object PartPlacementRender {
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
       GL11.glEnable(GL11.GL_BLEND)
 
-      val m = place.part.data.material.getModel(place.part.data, ModelRotation.X0_Y0)
+      val provider = MicroblockRegistryClient.getModelProviderFor(data.material)
+
       import scala.collection.JavaConversions._
+
+      val quads = place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
+        val model = provider.provideMicroModel(new IMicroModelState.Impl(place.part.getMicroMaterial, bb, bb.hidden))
+        model.getGeneralQuads ++ EnumFacing.values().flatMap(model.getFaceQuads)
+      }
 
       val T = Tessellator.getInstance()
       val W = T.getWorldRenderer
       W.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
       val consumer = new WorldRendererConsumer(W)
 
-      for (quad <- m.getGeneralQuads ++ EnumFacing.values().flatMap(m.getFaceQuads)) {
-        quad.pipe(consumer)
-      }
+      quads foreach (_.pipe(consumer))
 
       T.draw()
 

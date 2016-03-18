@@ -17,18 +17,15 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers
+package net.bdew.covers.misc
 
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
-import net.minecraftforge.client.model.ModelLoaderRegistry
+import mcmultipart.multipart.PartSlot
+import net.minecraft.util.EnumFacing
 
-object CoversClient {
-  def preInit(): Unit = {
-    ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
-    PartPlacementRender.init()
-  }
+object FacesToSlot {
+  val map = (PartSlot.values() map { slot =>
+    (Set() ++ Option(slot.f1) ++ Option(slot.f2) ++ Option(slot.f3)) -> slot
+  }).toMap
 
-  def init(): Unit = {
-    MicroblockModelProvider.registerProviders()
-  }
+  def from(slot: EnumFacing*) = map(slot.toSet)
 }

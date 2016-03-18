@@ -19,21 +19,24 @@
 
 package net.bdew.covers.microblock
 
+import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.MultipartHelper
+import net.bdew.covers.microblock.parts.BasePart
+import net.bdew.covers.microblock.shape.MicroblockShape
 import net.minecraft.util.{BlockPos, EnumFacing, MovingObjectPosition, Vec3}
 import net.minecraft.world.{IBlockAccess, World}
 
-case class MicroblockPlacement(world: IBlockAccess, pos: BlockPos, part: PartMicroblock)
+case class MicroblockLocation(world: IBlockAccess, pos: BlockPos, part: BasePart)
 
-object MicroblockPlacement {
-  def calculate(world: World, mop: MovingObjectPosition, data: MicroblockData): Option[MicroblockPlacement] = {
+object MicroblockLocation {
+  def calculate(world: World, mop: MovingObjectPosition, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
     if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
-      calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3(mop.getBlockPos)), mop.sideHit, data)
+      calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3(mop.getBlockPos)), mop.sideHit, shape, size, material, client)
     else
       None
   }
 
-  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3, hitFaceOriginal: EnumFacing, data: MicroblockData): Option[MicroblockPlacement] = {
+  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3, hitFaceOriginal: EnumFacing, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
     var blockPos = blockPosOriginal
     var place = hitVecOriginal
     var hitFace = hitFaceOriginal
@@ -66,10 +69,10 @@ object MicroblockPlacement {
       hitFace = hitFace.getOpposite
     }
 
-    data.shape.getSlotFromHit(place, hitFace) flatMap { slot =>
-      val part = new PartMicroblock(data.copy(slot = slot))
+    shape.getSlotFromHit(place, hitFace) flatMap { slot =>
+      val part = shape.createPart(slot, size, material, client)
       if (MultipartHelper.canAddPart(world, blockPos, part))
-        Some(MicroblockPlacement(world, blockPos, part))
+        Some(MicroblockLocation(world, blockPos, part))
       else
         None
     }

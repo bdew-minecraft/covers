@@ -24,7 +24,7 @@ import java.util.Collections
 
 import com.google.common.collect.ImmutableList
 import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
-import net.bdew.covers.microblock.MicroblockRegistry
+import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.microblock.shape.FaceShape
 import net.minecraft.item.ItemStack
 
@@ -32,8 +32,8 @@ object MicroblockRecipeCutBlock extends MicroblockRecipe {
   override val getInputs: util.List[_] = {
     val blockList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
-      blockList.add(new ItemStack(x.block, 1, x.meta))
+    for (x <- InternalRegistry.materials.values)
+      blockList.add(x.getItem)
 
     ImmutableList.of(new ItemStack(ItemSaw), Collections.emptyList(), Collections.emptyList(), blockList)
   }
@@ -41,7 +41,7 @@ object MicroblockRecipeCutBlock extends MicroblockRecipe {
   override val getOutputs: util.List[ItemStack] = {
     val partList = new util.ArrayList[ItemStack]()
 
-    for (x <- MicroblockRegistry.materials.values)
+    for (x <- InternalRegistry.materials.values)
       partList.add(ItemMicroblock.makeStack(x, FaceShape, 8, 2))
 
     partList
