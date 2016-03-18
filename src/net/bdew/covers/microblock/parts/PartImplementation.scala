@@ -25,8 +25,10 @@ import mcmultipart.microblock.{Microblock, MicroblockClass}
 import mcmultipart.multipart.{IMultipart, ISlottedPart, ISolidPart, PartSlot}
 import mcmultipart.raytrace.RayTraceUtils.{RayTraceResult, RayTraceResultPart}
 import mcmultipart.raytrace.{PartMOP, RayTraceUtils}
-import net.bdew.covers.microblock.MicroblockShapeProperty
 import net.bdew.covers.microblock.shape.MicroblockShape
+import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
+import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
+import net.bdew.lib.Misc
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -69,10 +71,10 @@ trait PartImplementation extends Microblock with ISolidPart {
   override def isSideSolid(side: EnumFacing): Boolean = shape.isSolid(getSlot, getSize, side)
 
   override def createBlockState(): ExtendedBlockState =
-    new ExtendedBlockState(null, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty).toArray)
+    new ExtendedBlockState(null, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty :+ BoundsProperty).toArray)
 
   override def getExtendedState(state: IBlockState): IExtendedBlockState =
-    super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape)
+    super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape).withProperty(BoundsProperty, calcBounds())
 
   override def occlusionTest(part: IMultipart): Boolean = {
     super.occlusionTest(part) && (
@@ -81,6 +83,17 @@ trait PartImplementation extends Microblock with ISolidPart {
         slots.retainAll(shape.getShadowedSlots(getSlot, getSize))
         slots.isEmpty
       } else true)
+  }
+
+  def calcBounds(): AxisAlignedBB = {
+    var box = new AxisAlignedBB(0, 0, 0, 1, 1, 1)
+    if (getContainer != null && getContainer.getParts.size() >= 1) {
+      import scala.collection.JavaConversions._
+      for (part <- Misc.filterType(getContainer.getParts, classOf[PartImplementation]) if part != this && CoverUtils.shouldPartAffectBounds(this, part)) {
+        box = part.shape.exclusionBox(part.getSlot, part.getSize, box, FacesToSlot.inverted(this.getSlot))
+      }
+    }
+    box
   }
 
   override def getModelPath: String = "covers:microblock"

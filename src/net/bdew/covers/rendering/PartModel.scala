@@ -27,8 +27,8 @@ import mcmultipart.client.microblock.{IMicroModelState, MicroblockRegistryClient
 import mcmultipart.client.multipart.ISmartMultipartModel
 import mcmultipart.microblock.{IMicroMaterial, Microblock}
 import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.MicroblockShapeProperty
-import net.bdew.covers.misc.AABBHiddenFaces
+import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
+import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.Client
 import net.bdew.lib.render.models.{ModelUtils, SimpleBakedModelBuilder}
 import net.minecraft.block.state.IBlockState
@@ -50,8 +50,12 @@ object PartModel extends IModel {
 }
 
 class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFlexibleBakedModel with ISmartItemModel with ISmartMultipartModel {
-  lazy val missing = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelManager.getMissingModel
-  val noFaces = util.EnumSet.noneOf(classOf[EnumFacing])
+  lazy val missing = {
+    val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
+    builder.texture = Client.missingIcon
+    builder.setTransformsFromState(state)
+    builder.build()
+  }
 
   def addStateToModel(model: IBakedModel): IPerspectiveAwareModel =
     new IPerspectiveAwareModel.MapWrapper(ModelUtils.makeFlexible(model), state)
@@ -90,10 +94,11 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFl
   override def handlePartState(state: IBlockState): IBakedModel = {
     val ex = state.asInstanceOf[IExtendedBlockState]
     val material = ex.getValue(Microblock.PROPERTY_MATERIAL)
-    val shape = ex.getValue(MicroblockShapeProperty)
     val size = ex.getValue(Microblock.PROPERTY_SIZE)
     val slot = ex.getValue(Microblock.PROPERTY_SLOT)
-    buildModel(material, shape.getPartBoxes(slot, size))
+    val shape = ex.getValue(MicroblockShapeProperty)
+    val bounds = ex.getValue(BoundsProperty)
+    buildModel(material, CoverUtils.limitBoxes(shape.getPartBoxes(slot, size), bounds))
   }
 
   override def getFormat: VertexFormat = vertexFormat

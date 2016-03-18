@@ -26,7 +26,7 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartCorner
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
-import net.minecraft.util.EnumFacing.AxisDirection
+import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CornerShape extends MicroblockShape("corner") {
@@ -49,14 +49,14 @@ object CornerShape extends MicroblockShape("corner") {
     val doubleSize = size / 8D
 
     val directions = Map(
-      slot.f1.getAxis -> (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
-      slot.f2.getAxis -> (slot.f2.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
-      slot.f3.getAxis -> (slot.f3.getAxisDirection == EnumFacing.AxisDirection.POSITIVE)
+      slot.f1.getAxis -> (slot.f1.getAxisDirection == AxisDirection.POSITIVE),
+      slot.f2.getAxis -> (slot.f2.getAxisDirection == AxisDirection.POSITIVE),
+      slot.f3.getAxis -> (slot.f3.getAxisDirection == AxisDirection.POSITIVE)
     )
 
-    val (minX, maxX) = interval(doubleSize, directions(EnumFacing.Axis.X))
-    val (minY, maxY) = interval(doubleSize, directions(EnumFacing.Axis.Y))
-    val (minZ, maxZ) = interval(doubleSize, directions(EnumFacing.Axis.Z))
+    val (minX, maxX) = interval(doubleSize, directions(Axis.X))
+    val (minY, maxY) = interval(doubleSize, directions(Axis.Y))
+    val (minZ, maxZ) = interval(doubleSize, directions(Axis.Z))
 
     new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
   }
@@ -67,6 +67,8 @@ object CornerShape extends MicroblockShape("corner") {
     val (min, max) = (0.5 - doubleSize, 0.5 + doubleSize)
     List(new AABBHiddenFaces(min, min, min, max, max, max, AABBHiddenFaces.noFaces))
   }
+
+  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
     val faces = util.EnumSet.of(

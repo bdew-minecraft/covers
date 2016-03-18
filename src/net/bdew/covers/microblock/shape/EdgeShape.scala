@@ -26,7 +26,7 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartEdge
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
-import net.minecraft.util.EnumFacing.AxisDirection
+import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object EdgeShape extends MicroblockShape("edge") {
@@ -47,13 +47,13 @@ object EdgeShape extends MicroblockShape("edge") {
     val doubleSize = size / 8D
 
     val directions = Map(
-      slot.f1.getAxis -> (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE),
-      slot.f2.getAxis -> (slot.f2.getAxisDirection == EnumFacing.AxisDirection.POSITIVE)
+      slot.f1.getAxis -> (slot.f1.getAxisDirection == AxisDirection.POSITIVE),
+      slot.f2.getAxis -> (slot.f2.getAxisDirection == AxisDirection.POSITIVE)
     )
 
-    val (minX, maxX) = directions.get(EnumFacing.Axis.X).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
-    val (minY, maxY) = directions.get(EnumFacing.Axis.Y).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
-    val (minZ, maxZ) = directions.get(EnumFacing.Axis.Z).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
+    val (minX, maxX) = directions.get(Axis.X).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
+    val (minY, maxY) = directions.get(Axis.Y).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
+    val (minZ, maxZ) = directions.get(Axis.Z).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
 
     new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
   }
@@ -63,6 +63,16 @@ object EdgeShape extends MicroblockShape("edge") {
     val doubleSize = size / 16D
     val (min, max) = (0.5 - doubleSize, 0.5 + doubleSize)
     List(new AABBHiddenFaces(min, 0, min, max, 1, max, AABBHiddenFaces.noFaces))
+  }
+
+  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
+    if (sides.contains(slot.f1)) {
+      val (min, max) = if (slot.f2.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+      CoverUtils.clampBBOnAxis(box, slot.f2.getAxis, min, max)
+    } else if (sides.contains(slot.f2)) {
+      val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+      CoverUtils.clampBBOnAxis(box, slot.f1.getAxis, min, max)
+    } else box
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {

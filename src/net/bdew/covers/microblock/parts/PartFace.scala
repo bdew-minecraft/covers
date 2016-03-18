@@ -21,12 +21,37 @@ package net.bdew.covers.microblock.parts
 
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.microblock.IMicroblock.IFaceMicroblock
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.shape.FaceShape
+import mcmultipart.multipart.{IMultipart, PartSlot}
+import net.bdew.covers.microblock.shape.{FaceShape, HollowFaceShape}
 import net.minecraft.util.EnumFacing
 
-class PartFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(FaceShape, material, slot, size, isRemote) with IFaceMicroblock {
+trait PartFaceBase extends BasePart with IFaceMicroblock {
   override def getFace: EnumFacing = getSlot.f1
   override def isEdgeHollow: Boolean = false
+}
+
+class PartFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(FaceShape, material, slot, size, isRemote) with PartFaceBase {
   override def isFaceHollow: Boolean = false
 }
+
+class PartHollowFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(HollowFaceShape, material, slot, size, isRemote) with PartFaceBase {
+  override def isFaceHollow: Boolean = true
+
+  override def occlusionTest(part: IMultipart): Boolean = {
+    super.occlusionTest(part) && (
+      if (getSize >= 4 && part.isInstanceOf[PartCenter]) {
+        part.asInstanceOf[PartCenter].getSlot.f1.getAxis == getFace.getAxis
+      } else true)
+  }
+
+  override def isSideSolid(side: EnumFacing): Boolean = {
+    if (getContainer != null) {
+      val centerPart = getContainer.getPartInSlot(PartSlot.CENTER)
+      if (centerPart != null && centerPart.isInstanceOf[PartCenter]) {
+        val part = centerPart.asInstanceOf[PartCenter]
+        part.getSize == 4 && part.getSlot.f1.getAxis == getFace.getAxis
+      } else false
+    } else false
+  }
+}
+

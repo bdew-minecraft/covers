@@ -132,6 +132,13 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
     */
   def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean): BasePart
 
+  /**
+    * Remove the area covered by this part from a bounding box
+    *
+    * @return new bounding box, that doesn't include this part
+    */
+  def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB
+
   // ==== MicroblockClass ====
 
   override def getType: String = "covers:" + name

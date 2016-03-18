@@ -17,28 +17,9 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.misc
+package net.bdew.covers.microblock
 
-import java.util
+import net.bdew.lib.property.SimpleUnlistedProperty
+import net.minecraft.util.AxisAlignedBB
 
-import mcmultipart.multipart.PartSlot
-import net.minecraft.util.EnumFacing
-
-object FacesToSlot {
-  val map = (PartSlot.values() map { slot =>
-    (Set() ++ Option(slot.f1) ++ Option(slot.f2) ++ Option(slot.f3)) -> slot
-  }).toMap
-
-  val inverted = map.map(_.swap)
-
-  def from(faces: EnumFacing*) = map(faces.toSet)
-
-  def find(faces: EnumFacing*) = {
-    val faceSet = faces.toSet
-    val found = map.filterKeys(_.intersect(faceSet) == faceSet).values.toSeq
-    if (found.isEmpty)
-      util.EnumSet.noneOf(classOf[PartSlot])
-    else
-      util.EnumSet.of(found.head, found.tail: _*)
-  }
-}
+object BoundsProperty extends SimpleUnlistedProperty("bounds", classOf[AxisAlignedBB])

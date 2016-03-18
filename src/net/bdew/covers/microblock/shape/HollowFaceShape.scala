@@ -40,7 +40,7 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
     require(validSizes.contains(size))
     val doubleSize = size / 8D
 
-    val (min, max) = if (slot.f1.getAxisDirection == EnumFacing.AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
+    val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
     CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
@@ -77,6 +77,11 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
     val doubleSize = size / 16D
     val (min, max) = (0.5 - doubleSize, 0.5 + doubleSize)
     generateSubBoxes(new AxisAlignedBB(0, 0, min, 1, 1, max), Axis.Z)
+  }
+
+  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
+    val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+    CoverUtils.clampBBOnAxis(box, slot.f1.getAxis, min, max)
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = FacesToSlot.find(slot.f1)

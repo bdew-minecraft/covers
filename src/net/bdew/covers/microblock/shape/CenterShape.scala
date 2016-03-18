@@ -26,7 +26,7 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartCenter
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.block.BlockFace
-import net.minecraft.util.EnumFacing.AxisDirection
+import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object CenterShape extends MicroblockShape("center") {
@@ -55,6 +55,8 @@ object CenterShape extends MicroblockShape("center") {
     List(new AABBHiddenFaces(0.5 - offset, 0, 0.5 - offset, 0.5 + offset, 1, 0.5 + offset, AABBHiddenFaces.noFaces))
   }
 
+  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
+
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.noneOf(classOf[PartSlot])
 
   override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
@@ -65,9 +67,9 @@ object CenterShape extends MicroblockShape("center") {
 
     if (x > 0.25 && x < 0.75 && y > 0.25 && y < 0.75) {
       side.getAxis match {
-        case EnumFacing.Axis.X => Some(PartSlot.EAST)
-        case EnumFacing.Axis.Y => Some(PartSlot.UP)
-        case EnumFacing.Axis.Z => Some(PartSlot.NORTH)
+        case Axis.X => Some(PartSlot.EAST)
+        case Axis.Y => Some(PartSlot.UP)
+        case Axis.Z => Some(PartSlot.NORTH)
       }
     } else None
   }
