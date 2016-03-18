@@ -182,11 +182,11 @@ curseforge {
         }
 
         addArtifact(deobfJar) {
-            displayName = "Covers ${simpleVersion} Source (MC ${config.minecraft.version})"
+            displayName = "Covers ${simpleVersion} Deobfuscated (MC ${config.minecraft.version})"
         }
 
         addArtifact(sourceJarReal) {
-            displayName = "Covers ${simpleVersion} Deobfuscated (MC ${config.minecraft.version})"
+            displayName = "Covers ${simpleVersion} Source (MC ${config.minecraft.version})"
         }
 
         relations {
