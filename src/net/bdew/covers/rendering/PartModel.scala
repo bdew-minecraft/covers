@@ -30,7 +30,7 @@ import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.MicroblockShapeProperty
 import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
-import net.bdew.lib.render.models.SimpleBakedModelBuilder
+import net.bdew.lib.render.models.{ModelUtils, SimpleBakedModelBuilder}
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemCameraTransforms}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
@@ -53,14 +53,17 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFl
   lazy val missing = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelManager.getMissingModel
   val noFaces = util.EnumSet.noneOf(classOf[EnumFacing])
 
+  def addStateToModel(model: IBakedModel): IPerspectiveAwareModel =
+    new IPerspectiveAwareModel.MapWrapper(ModelUtils.makeFlexible(model), state)
+
   def buildModel(material: IMicroMaterial, boxes: List[AABBHiddenFaces]) = {
     val provider = MicroblockRegistryClient.getModelProviderFor(material)
     if (boxes.isEmpty || provider == null) {
       missing
     } else if (boxes.size == 1) {
-      provider.provideMicroModel(new IMicroModelState.Impl(material, boxes.head, boxes.head.hidden))
+      addStateToModel(provider.provideMicroModel(new IMicroModelState.Impl(material, boxes.head, boxes.head.hidden)))
     } else if (provider.isInstanceOf[MicroblockModelProvider]) {
-      provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes)
+      addStateToModel(provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes))
     } else {
       val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
       val models = boxes map (box => provider.provideMicroModel(new IMicroModelState.Impl(material, box, box.hidden)))
@@ -79,7 +82,6 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFl
 
       builder.build()
     }
-
   }
 
   override def handleItemState(stack: ItemStack): IBakedModel =
