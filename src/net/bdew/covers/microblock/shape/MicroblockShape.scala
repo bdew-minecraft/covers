@@ -68,6 +68,11 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
   def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] = List(AABBHiddenFaces.withHiddenFaces(getBoundingBox(slot, size)))
 
   /**
+    * @return List of bounding boxes that form the part of the given size in the given slot
+    */
+  def getItemBoxes(size: Int): List[AABBHiddenFaces]
+
+  /**
     * Determine slot for a new part
     *
     * @param vec  hit vector of the click that would place the part

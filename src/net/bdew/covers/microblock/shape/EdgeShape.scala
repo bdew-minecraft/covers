@@ -24,7 +24,7 @@ import java.util
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartEdge
-import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
+import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
@@ -56,6 +56,13 @@ object EdgeShape extends MicroblockShape("edge") {
     val (minZ, maxZ) = directions.get(EnumFacing.Axis.Z).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
 
     new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
+  }
+
+  override def getItemBoxes(size: Int): List[AABBHiddenFaces] = {
+    require(validSizes.contains(size))
+    val doubleSize = size / 16D
+    val (min, max) = (0.5 - doubleSize, 0.5 + doubleSize)
+    List(new AABBHiddenFaces(min, 0, min, max, 1, max, AABBHiddenFaces.noFaces))
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {

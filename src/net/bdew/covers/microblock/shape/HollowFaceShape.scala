@@ -26,7 +26,7 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartHollowFace
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
-import net.minecraft.util.EnumFacing.AxisDirection
+import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
 
 object HollowFaceShape extends MicroblockShape("hollowface") {
@@ -45,9 +45,9 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
     CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
   }
 
-  override def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] = {
-    val bb = getBoundingBox(slot, size)
-    val (secondary, third) = CoverUtils.otherAxes(slot.f1.getAxis)
+  def generateSubBoxes(bb: AxisAlignedBB, axis: Axis) = {
+    val (secondary, third) = CoverUtils.otherAxes(axis)
+
     val top = CoverUtils.clampBBOnAxis(bb, secondary, 0, 0.25)
     val side = CoverUtils.clampBBOnAxis(bb, secondary, 0.25, 0.75)
     val bottom = CoverUtils.clampBBOnAxis(bb, secondary, 0.75, 1)
@@ -67,6 +67,16 @@ object HollowFaceShape extends MicroblockShape("hollowface") {
       AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0.25, 0.75), tp, tn),
       AABBHiddenFaces.withHiddenFaces(CoverUtils.clampBBOnAxis(bottom, third, 0.75, 1), tn, sn)
     )
+  }
+
+  override def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] =
+    generateSubBoxes(getBoundingBox(slot, size), slot.f1.getAxis)
+
+  override def getItemBoxes(size: Int): List[AABBHiddenFaces] = {
+    require(validSizes.contains(size))
+    val doubleSize = size / 16D
+    val (min, max) = (0.5 - doubleSize, 0.5 + doubleSize)
+    generateSubBoxes(new AxisAlignedBB(0, 0, min, 1, 1, max), Axis.Z)
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = FacesToSlot.find(slot.f1)

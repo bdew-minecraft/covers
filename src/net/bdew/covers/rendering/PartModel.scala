@@ -85,7 +85,7 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFl
   }
 
   override def handleItemState(stack: ItemStack): IBakedModel =
-    ItemMicroblock.getData(stack) map (data => buildModel(data.material, data.shape.getPartBoxes(data.shape.defaultSlot, data.size))) getOrElse missing
+    ItemMicroblock.getData(stack) map (data => buildModel(data.material, data.shape.getItemBoxes(data.size))) getOrElse missing
 
   override def handlePartState(state: IBlockState): IBakedModel = {
     val ex = state.asInstanceOf[IExtendedBlockState]

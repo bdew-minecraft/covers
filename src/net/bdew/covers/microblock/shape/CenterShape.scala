@@ -24,7 +24,7 @@ import java.util
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartCenter
-import net.bdew.covers.misc.CoverUtils
+import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
@@ -47,6 +47,12 @@ object CenterShape extends MicroblockShape("center") {
       case PartSlot.NORTH => new AxisAlignedBB(0.5 - offset, 0.5 - offset, 0, 0.5 + offset, 0.5 + offset, 1)
       case _ => sys.error("This should be unreachable")
     }
+  }
+
+  override def getItemBoxes(size: Int): List[AABBHiddenFaces] = {
+    require(validSizes.contains(size))
+    val offset = size / 16D
+    List(new AABBHiddenFaces(0.5 - offset, 0, 0.5 - offset, 0.5 + offset, 1, 0.5 + offset, AABBHiddenFaces.noFaces))
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.noneOf(classOf[PartSlot])
