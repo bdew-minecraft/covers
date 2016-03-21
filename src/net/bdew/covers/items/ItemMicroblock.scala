@@ -29,11 +29,12 @@ import net.bdew.covers.microblock.shape.MicroblockShape
 import net.bdew.lib.PimpVanilla._
 import net.bdew.lib.items.BaseItem
 import net.bdew.lib.nbt.NBT
-import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.{Item, ItemStack}
-import net.minecraft.util.{BlockPos, EnumFacing, Vec3}
+import net.minecraft.util.math.{BlockPos, Vec3d}
+import net.minecraft.util.{EnumActionResult, EnumFacing, EnumHand, SoundCategory}
 import net.minecraft.world.World
 import net.minecraftforge.client.model.ModelLoader
 
@@ -72,21 +73,21 @@ object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
     for (material <- InternalRegistry.materials.values; shape <- InternalRegistry.shapes.values; size <- shape.validSizes)
       list.add(makeStack(material, shape, size))
 
-  def createPart(world: World, pos: BlockPos, side: EnumFacing, hit: Vec3, stack: ItemStack, player: EntityPlayer): IMultipart =
+  override def createPart(world: World, pos: BlockPos, side: EnumFacing, hit: Vec3d, stack: ItemStack, player: EntityPlayer): IMultipart =
     getData(stack) map (data => data.shape.createPart(data.shape.defaultSlot, data.size, data.material, world.isRemote)) getOrElse sys.error("Creating part from invalid stack")
 
-  override def onItemUse(stack: ItemStack, player: EntityPlayer, world: World, pos: BlockPos, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def onItemUse(stack: ItemStack, player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult = {
     if (player.canPlayerEdit(pos, side, stack)) {
-      for (data <- getData(stack); place <- MicroblockLocation.calculate(world, pos, new Vec3(hitX, hitY, hitZ), side, data.shape, data.size, data.material, world.isRemote)) {
+      for (data <- getData(stack); place <- MicroblockLocation.calculate(world, pos, new Vec3d(hitX, hitY, hitZ), side, data.shape, data.size, data.material, world.isRemote)) {
         if (!world.isRemote) MultipartHelper.addPart(world, place.pos, place.part)
         stack.stackSize -= 1
         val sound = place.part.getMicroMaterial.getSound
         if (sound != null)
-          world.playSoundEffect(place.pos.getX + 0.5, place.pos.getY + 0.5, place.pos.getZ + 0.5, sound.getPlaceSound, sound.getVolume, sound.getFrequency)
-        return true
+          world.playSound(player, pos, sound.getPlaceSound, SoundCategory.BLOCKS, sound.getVolume, sound.getPitch)
+        return EnumActionResult.SUCCESS
       }
     }
-    false
+    EnumActionResult.PASS
   }
 
   override def canItemEditBlocks = true

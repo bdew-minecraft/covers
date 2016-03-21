@@ -23,20 +23,21 @@ import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.MultipartHelper
 import net.bdew.covers.microblock.parts.BasePart
 import net.bdew.covers.microblock.shape.MicroblockShape
-import net.minecraft.util.{BlockPos, EnumFacing, MovingObjectPosition, Vec3}
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.{BlockPos, RayTraceResult, Vec3d}
 import net.minecraft.world.{IBlockAccess, World}
 
 case class MicroblockLocation(world: IBlockAccess, pos: BlockPos, part: BasePart)
 
 object MicroblockLocation {
-  def calculate(world: World, mop: MovingObjectPosition, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
-    if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
-      calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3(mop.getBlockPos)), mop.sideHit, shape, size, material, client)
+  def calculate(world: World, mop: RayTraceResult, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
+    if (mop.typeOfHit == RayTraceResult.Type.BLOCK)
+      calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3d(mop.getBlockPos)), mop.sideHit, shape, size, material, client)
     else
       None
   }
 
-  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3, hitFaceOriginal: EnumFacing, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
+  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3d, hitFaceOriginal: EnumFacing, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
     var blockPos = blockPosOriginal
     var place = hitVecOriginal
     var hitFace = hitFaceOriginal

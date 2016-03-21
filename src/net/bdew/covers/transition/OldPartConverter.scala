@@ -26,6 +26,7 @@ import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.lib.PimpVanilla._
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.network.PacketBuffer
+import net.minecraft.util.ResourceLocation
 
 object OldPartConverter extends IAdvancedPartFactory {
   var registered = false
@@ -33,8 +34,8 @@ object OldPartConverter extends IAdvancedPartFactory {
   lazy val materialMap = for ((ref, material) <- InternalRegistry.materials)
     yield (ref.block.getRegistryName + "@" + ref.meta) -> material
 
-  override def createPart(kind: String, tag: NBTTagCompound): IMultipart =
-    if (kind == "covers:microblock") {
+  override def createPart(kind: ResourceLocation, tag: NBTTagCompound): IMultipart =
+    if (kind.getResourceDomain == "covers" && kind.getResourcePath == "microblock") {
       (for {
         shapeId <- tag.get[String]("shape")
         materialId <- tag.get[String]("material")
@@ -53,7 +54,7 @@ object OldPartConverter extends IAdvancedPartFactory {
       }
     } else null
 
-  override def createPart(kind: String, buf: PacketBuffer): IMultipart = null // Should never be called
+  override def createPart(kind: ResourceLocation, buf: PacketBuffer): IMultipart = null // Should never be called
 
   def register(): Unit = {
     MultipartRegistry.registerPartFactory(OldPartConverter, "covers:microblock")

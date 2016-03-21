@@ -21,11 +21,12 @@ package net.bdew.covers.misc
 
 import net.bdew.covers.microblock.parts.PartImplementation
 import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, HollowFaceShape}
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.Axis
-import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
+import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
 object CoverUtils {
-  def getAxis(vec: Vec3, axis: Axis, neg: Boolean = false) = {
+  def getAxis(vec: Vec3d, axis: Axis, neg: Boolean = false) = {
     if (neg) {
       axis match {
         case Axis.X => vec.xCoord

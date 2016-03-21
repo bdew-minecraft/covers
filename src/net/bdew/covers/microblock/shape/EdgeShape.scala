@@ -26,8 +26,9 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartEdge
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
-import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
+import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
 object EdgeShape extends MicroblockShape("edge") {
   override val validSlots = PartSlot.EDGES.toSet
@@ -83,7 +84,7 @@ object EdgeShape extends MicroblockShape("edge") {
     faces
   }
 
-  override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)

@@ -21,15 +21,15 @@ package net.bdew.covers.rendering
 
 import java.util
 
-import mcmultipart.client.microblock.{IMicroModelState, MicroblockRegistryClient}
+import mcmultipart.client.microblock.MicroblockRegistryClient
 import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.MicroblockLocation
 import net.bdew.lib.Client
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.client.renderer.{GlStateManager, Tessellator}
+import net.bdew.lib.render.WorldQuadRender
+import net.bdew.lib.render.models.ModelUtils
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.client.event.RenderWorldLastEvent
-import net.minecraftforge.client.model.pipeline.WorldRendererConsumer
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.opengl.GL11
@@ -63,21 +63,12 @@ object PartPlacementRender {
 
       val provider = MicroblockRegistryClient.getModelProviderFor(data.material)
 
-      import scala.collection.JavaConversions._
-
       val quads = place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
-        val model = provider.provideMicroModel(new IMicroModelState.Impl(place.part.getMicroMaterial, bb, bb.hidden))
-        model.getGeneralQuads ++ EnumFacing.values().flatMap(model.getFaceQuads)
+        val model = provider.provideMicroModel(place.part.getMicroMaterial, bb, bb.hidden)
+        ModelUtils.getAllQuads(model, null)
       }
 
-      val T = Tessellator.getInstance()
-      val W = T.getWorldRenderer
-      W.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-      val consumer = new WorldRendererConsumer(W)
-
-      quads foreach (_.pipe(consumer))
-
-      T.draw()
+      WorldQuadRender.renderBakedQuads(quads)
 
       GL11.glColor4f(1, 1, 1, 1)
       GL11.glDisable(GL11.GL_BLEND)

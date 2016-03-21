@@ -23,8 +23,8 @@ import java.util
 
 import mcmultipart.microblock.{Microblock, MicroblockClass}
 import mcmultipart.multipart.{IMultipart, ISlottedPart, ISolidPart, PartSlot}
-import mcmultipart.raytrace.RayTraceUtils.{RayTraceResult, RayTraceResultPart}
-import mcmultipart.raytrace.{PartMOP, RayTraceUtils}
+import mcmultipart.raytrace.PartMOP
+import mcmultipart.raytrace.RayTraceUtils.{AdvancedRayTraceResult, AdvancedRayTraceResultPart}
 import net.bdew.covers.microblock.shape.MicroblockShape
 import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
 import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
@@ -32,7 +32,8 @@ import net.bdew.lib.Misc
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.{AxisAlignedBB, EnumFacing, EnumWorldBlockLayer, Vec3}
+import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
+import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
 import net.minecraftforge.common.property.{ExtendedBlockState, IExtendedBlockState}
 
 trait PartImplementation extends Microblock with ISolidPart {
@@ -54,15 +55,15 @@ trait PartImplementation extends Microblock with ISolidPart {
       list.add(bb)
   }
 
-  override def collisionRayTrace(start: Vec3, end: Vec3): RayTraceUtils.RayTraceResultPart = {
+  override def collisionRayTrace(start: Vec3d, end: Vec3d): AdvancedRayTraceResultPart = {
     val res = super.collisionRayTrace(start, end)
     if (res == null)
       null
     else
-      new RayTraceResultPart(new RayTraceResult(res.hit, getBounds), this)
+      new AdvancedRayTraceResultPart(new AdvancedRayTraceResult(res.hit, getBounds), this)
   }
 
-  override def canRenderInLayer(layer: EnumWorldBlockLayer): Boolean = getMicroMaterial.canRenderInLayer(layer)
+  override def canRenderInLayer(layer: BlockRenderLayer): Boolean = getMicroMaterial.canRenderInLayer(layer)
 
   override def getStrength(player: EntityPlayer, hit: PartMOP): Float = 0.1f
 
@@ -96,5 +97,5 @@ trait PartImplementation extends Microblock with ISolidPart {
     box
   }
 
-  override def getModelPath: String = "covers:microblock"
+  override def getModelPath: ResourceLocation = new ResourceLocation("covers", "microblock")
 }

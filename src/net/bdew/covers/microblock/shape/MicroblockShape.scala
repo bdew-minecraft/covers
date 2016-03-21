@@ -30,6 +30,7 @@ import net.bdew.lib.Misc
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util._
+import net.minecraft.util.math.{AxisAlignedBB, BlockPos, RayTraceResult, Vec3d}
 import net.minecraft.world.World
 
 abstract class MicroblockShape(val name: String) extends MicroblockClass {
@@ -79,7 +80,7 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
     * @param side the side that was clicked
     * @return slot that the new part should take or None if the click shouldn't place a new part
     */
-  def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot]
+  def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot]
 
   /**
     * @param slot main slot of the part
@@ -149,10 +150,10 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
   override def createStack(material: IMicroMaterial, size: Int, stackSize: Int): ItemStack =
     ItemMicroblock.makeStack(material, this, size, stackSize)
 
-  override def getPlacement(world: World, pos: BlockPos, material: IMicroMaterial, size: Int, hit: MovingObjectPosition, player: EntityPlayer): MicroblockPlacement =
+  override def getPlacement(world: World, pos: BlockPos, material: IMicroMaterial, size: Int, hit: RayTraceResult, player: EntityPlayer): MicroblockPlacement =
     throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
 
-  override def getPlacementGrid: MicroblockPlacementGrid =
+  override def getPlacementGrid: IMicroblockPlacementGrid =
     throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
 
   override def create(client: Boolean): BasePart = createPart(null, 0, null, false)

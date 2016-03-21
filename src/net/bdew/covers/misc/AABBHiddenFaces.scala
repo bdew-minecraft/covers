@@ -21,7 +21,8 @@ package net.bdew.covers.misc
 
 import java.util
 
-import net.minecraft.util.{AxisAlignedBB, EnumFacing}
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
 
 class AABBHiddenFaces(x1: Double, y1: Double, z1: Double, x2: Double, y2: Double, z2: Double, val hidden: util.EnumSet[EnumFacing]) extends AxisAlignedBB(x1, y1, z1, x2, y2, z2)
 

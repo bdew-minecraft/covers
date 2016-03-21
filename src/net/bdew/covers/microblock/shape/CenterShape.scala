@@ -26,8 +26,9 @@ import mcmultipart.multipart.PartSlot
 import net.bdew.covers.microblock.parts.PartCenter
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.block.BlockFace
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
-import net.minecraft.util.{AxisAlignedBB, EnumFacing, Vec3}
+import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
 object CenterShape extends MicroblockShape("center") {
   override val validSlots = Set(PartSlot.NORTH, PartSlot.UP, PartSlot.EAST)
@@ -59,7 +60,7 @@ object CenterShape extends MicroblockShape("center") {
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.noneOf(classOf[PartSlot])
 
-  override def getSlotFromHit(vec: Vec3, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
 
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)

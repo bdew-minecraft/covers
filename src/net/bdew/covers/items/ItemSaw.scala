@@ -25,5 +25,5 @@ import net.minecraft.item.ItemStack
 
 object ItemSaw extends BaseItem("Saw") with IItemSaw {
   setMaxStackSize(1)
-  override def getCuttingStrength(stack: ItemStack): Int = 4
+  override def getSawStrength(stack: ItemStack): Int = 4
 }

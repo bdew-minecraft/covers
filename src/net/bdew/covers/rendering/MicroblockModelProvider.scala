@@ -19,28 +19,29 @@
 
 package net.bdew.covers.rendering
 
-import mcmultipart.client.microblock.{IMicroModelProvider, IMicroModelState, MicroblockRegistryClient}
+import java.util
+
+import mcmultipart.client.microblock.{IMicroModelProvider, MicroblockRegistryClient}
 import mcmultipart.microblock.IMicroMaterial
 import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
 import net.bdew.lib.render.Unpacker
-import net.bdew.lib.render.models.SimpleBakedModelBuilder
+import net.bdew.lib.render.models.{ModelUtils, SimpleBakedModelBuilder}
 import net.bdew.lib.render.primitive.TVertex
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.client.resources.model.IBakedModel
-import net.minecraft.util.{AxisAlignedBB, EnumFacing}
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.client.model.{IModelState, TRSRTransformation}
-
-import scala.collection.JavaConversions._
 
 class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvider {
   val blockState = Block.getBlockFromItem(material.getItem.getItem).getStateFromMeta(material.getItem.getItemDamage)
 
-  override def provideMicroModel(modelState: IMicroModelState): IBakedModel =
-    MicroblockModelProvider.getModel(blockState, List(AABBHiddenFaces.withHiddenFaces(modelState.getBounds, modelState.getHiddenFaces)), TRSRTransformation.identity())
+  override def provideMicroModel(material: IMicroMaterial, bounds: AxisAlignedBB, hiddenFaces: util.EnumSet[EnumFacing]): IBakedModel =
+    MicroblockModelProvider.getModel(blockState, List(AABBHiddenFaces.withHiddenFaces(bounds, hiddenFaces)), TRSRTransformation.identity())
 
   def provideMicroModelAdvanced(boxes: List[AABBHiddenFaces]): IBakedModel =
     MicroblockModelProvider.getModel(blockState, boxes, TRSRTransformation.identity())
@@ -56,7 +57,7 @@ object MicroblockModelProvider {
     builder.isGui3d = true
     builder.setTransformsFromState(state)
 
-    for (packed <- List.empty ++ base.getGeneralQuads ++ EnumFacing.values().flatMap(base.getFaceQuads)) {
+    for (packed <- ModelUtils.getAllQuads(base, blockState)) {
       packed.pipe(unpacker)
       val quad = unpacker.buildAndReset().getQuad()
       val sf = scaleFactors(quad.vertexes.vector)

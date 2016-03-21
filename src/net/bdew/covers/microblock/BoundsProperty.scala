@@ -20,6 +20,6 @@
 package net.bdew.covers.microblock
 
 import net.bdew.lib.property.SimpleUnlistedProperty
-import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.math.AxisAlignedBB
 
 object BoundsProperty extends SimpleUnlistedProperty("bounds", classOf[AxisAlignedBB])

@@ -23,19 +23,17 @@ import java.util
 
 import com.google.common.base.Function
 import com.google.common.collect.ImmutableList
-import mcmultipart.client.microblock.{IMicroModelState, MicroblockRegistryClient}
-import mcmultipart.client.multipart.ISmartMultipartModel
+import mcmultipart.client.microblock.MicroblockRegistryClient
 import mcmultipart.microblock.{IMicroMaterial, Microblock}
 import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.Client
-import net.bdew.lib.render.models.{ModelUtils, SimpleBakedModelBuilder}
+import net.bdew.lib.render.models.{SimpleBakedModelBuilder, SmartItemModel}
 import net.minecraft.block.state.IBlockState
-import net.minecraft.client.renderer.block.model.{BakedQuad, ItemCameraTransforms}
+import net.minecraft.client.renderer.block.model.{BakedQuad, IBakedModel, ItemCameraTransforms}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
-import net.minecraft.client.resources.model.IBakedModel
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{EnumFacing, ResourceLocation}
 import net.minecraftforge.client.model._
@@ -43,13 +41,13 @@ import net.minecraftforge.common.property.IExtendedBlockState
 
 object PartModel extends IModel {
   override def getTextures: util.Collection[ResourceLocation] = ImmutableList.of()
-  override def bake(state: IModelState, format: VertexFormat, bakedTextureGetter: Function[ResourceLocation, TextureAtlasSprite]): IFlexibleBakedModel =
+  override def bake(state: IModelState, format: VertexFormat, bakedTextureGetter: Function[ResourceLocation, TextureAtlasSprite]): IBakedModel =
     new PartBakedModel(format, state)
   override def getDefaultState: IModelState = TRSRTransformation.identity()
   override def getDependencies: util.Collection[ResourceLocation] = ImmutableList.of()
 }
 
-class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFlexibleBakedModel with ISmartItemModel with ISmartMultipartModel {
+class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBakedModel with SmartItemModel {
   lazy val missing = {
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
     builder.texture = Client.missingIcon
@@ -57,56 +55,43 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IFl
     builder.build()
   }
 
-  def addStateToModel(model: IBakedModel): IPerspectiveAwareModel =
-    new IPerspectiveAwareModel.MapWrapper(ModelUtils.makeFlexible(model), state)
-
-  def buildModel(material: IMicroMaterial, boxes: List[AABBHiddenFaces]) = {
-    val provider = MicroblockRegistryClient.getModelProviderFor(material)
-    if (boxes.isEmpty || provider == null) {
-      missing
-    } else if (boxes.size == 1) {
-      addStateToModel(provider.provideMicroModel(new IMicroModelState.Impl(material, boxes.head, boxes.head.hidden)))
-    } else if (provider.isInstanceOf[MicroblockModelProvider]) {
-      addStateToModel(provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes))
-    } else {
-      val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
-      val models = boxes map (box => provider.provideMicroModel(new IMicroModelState.Impl(material, box, box.hidden)))
-
-      builder.texture = models.head.getParticleTexture
-      builder.isGui3d = true
-      builder.setTransformsFromState(state)
-
-      import scala.collection.JavaConversions._
-
-      for (model <- models) {
-        builder.addBakedQuadsGeneral(model.getGeneralQuads.toList)
-        for (face <- EnumFacing.values())
-          builder.addBakedQuads(face, model.getFaceQuads(face).toList)
-      }
-
-      builder.build()
-    }
-  }
-
-  override def handleItemState(stack: ItemStack): IBakedModel =
-    ItemMicroblock.getData(stack) map (data => buildModel(data.material, data.shape.getItemBoxes(data.size))) getOrElse missing
-
-  override def handlePartState(state: IBlockState): IBakedModel = {
+  override def getQuads(state: IBlockState, face: EnumFacing, rand: Long): util.List[BakedQuad] = {
     val ex = state.asInstanceOf[IExtendedBlockState]
     val material = ex.getValue(Microblock.PROPERTY_MATERIAL)
     val size = ex.getValue(Microblock.PROPERTY_SIZE)
     val slot = ex.getValue(Microblock.PROPERTY_SLOT)
     val shape = ex.getValue(MicroblockShapeProperty)
     val bounds = ex.getValue(BoundsProperty)
-    buildModel(material, CoverUtils.limitBoxes(shape.getPartBoxes(slot, size), bounds))
+    val boxes = CoverUtils.limitBoxes(shape.getPartBoxes(slot, size), bounds)
+    generateQuads(material, boxes, face, rand)
   }
 
-  override def getFormat: VertexFormat = vertexFormat
+  override def getItemQuads(item: ItemStack, face: EnumFacing, rand: Long): util.List[BakedQuad] = {
+    ItemMicroblock.getData(item) map { data =>
+      generateQuads(data.material, data.shape.getItemBoxes(data.size), face, rand)
+    } getOrElse missing.getQuads(null, face, rand)
+  }
+
+  def generateQuads(material: IMicroMaterial, boxes: List[AABBHiddenFaces], face: EnumFacing, rand: Long): util.List[BakedQuad] = {
+    val provider = MicroblockRegistryClient.getModelProviderFor(material)
+
+    if (boxes.isEmpty || provider == null) {
+      ImmutableList.of()
+    } else if (boxes.size == 1) {
+      provider.provideMicroModel(material, boxes.head, boxes.head.hidden).getQuads(null, face, rand)
+    } else if (provider.isInstanceOf[MicroblockModelProvider]) {
+      provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes).getQuads(null, face, rand)
+    } else {
+      val list = new util.LinkedList[BakedQuad]()
+      for (box <- boxes)
+        list.addAll(provider.provideMicroModel(material, boxes.head, boxes.head.hidden).getQuads(null, face, rand))
+      list
+    }
+  }
+
   override def getParticleTexture = Client.missingIcon
   override def isBuiltInRenderer = false
   override def isAmbientOcclusion = true
   override def isGui3d: Boolean = true
   override def getItemCameraTransforms: ItemCameraTransforms = ItemCameraTransforms.DEFAULT
-  override def getGeneralQuads: util.List[BakedQuad] = ImmutableList.of()
-  override def getFaceQuads(p_177551_1_ : EnumFacing): util.List[BakedQuad] = ImmutableList.of()
 }
