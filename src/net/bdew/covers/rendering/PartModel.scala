@@ -20,8 +20,9 @@
 package net.bdew.covers.rendering
 
 import java.util
+import javax.vecmath.Matrix4f
 
-import com.google.common.base.Function
+import com.google.common.base.{Function, Optional}
 import com.google.common.collect.ImmutableList
 import mcmultipart.client.microblock.MicroblockRegistryClient
 import mcmultipart.microblock.{IMicroMaterial, Microblock}
@@ -31,13 +32,16 @@ import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.Client
 import net.bdew.lib.render.models.{SimpleBakedModelBuilder, SmartItemModel}
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType
 import net.minecraft.client.renderer.block.model.{BakedQuad, IBakedModel, ItemCameraTransforms}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{EnumFacing, ResourceLocation}
 import net.minecraftforge.client.model._
+import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 import net.minecraftforge.common.property.IExtendedBlockState
+import org.apache.commons.lang3.tuple.Pair
 
 object PartModel extends IModel {
   override def getTextures: util.Collection[ResourceLocation] = ImmutableList.of()
@@ -47,7 +51,7 @@ object PartModel extends IModel {
   override def getDependencies: util.Collection[ResourceLocation] = ImmutableList.of()
 }
 
-class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBakedModel with SmartItemModel {
+class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBakedModel with SmartItemModel with IPerspectiveAwareModel {
   lazy val missing = {
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
     builder.texture = Client.missingIcon
@@ -87,6 +91,14 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
         list.addAll(provider.provideMicroModel(material, boxes.head, boxes.head.hidden).getQuads(null, face, rand))
       list
     }
+  }
+
+  override def handlePerspective(cameraTransformType: TransformType): Pair[_ <: IBakedModel, Matrix4f] = {
+    val tr = state.apply(Optional.of(cameraTransformType)).or(TRSRTransformation.identity)
+    if (tr != TRSRTransformation.identity)
+      Pair.of(this, TRSRTransformation.blockCornerToCenter(tr).getMatrix)
+    else
+      Pair.of(this, null)
   }
 
   override def getParticleTexture = Client.missingIcon

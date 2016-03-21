@@ -35,7 +35,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraftforge.client.model.{IModelState, TRSRTransformation}
+import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 
 class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvider {
   val blockState = Block.getBlockFromItem(material.getItem.getItem).getStateFromMeta(material.getItem.getItemDamage)
@@ -58,8 +58,7 @@ object MicroblockModelProvider {
     builder.setTransformsFromState(state)
 
     for (packed <- ModelUtils.getAllQuads(base, blockState)) {
-      packed.pipe(unpacker)
-      val quad = unpacker.buildAndReset().getQuad()
+      val quad = unpacker.unpack(packed).getQuad()
       val sf = scaleFactors(quad.vertexes.vector)
       builder.addQuadsGeneral(boxes filterNot (_.hidden.contains(quad.face)) map (box => quad.transform(x => clampVertex(x, box, sf))))
     }
@@ -141,7 +140,3 @@ object MicroblockModelProvider {
       MicroblockRegistryClient.registerMaterialModelProvider(material, new MicroblockModelProvider(material))
   }
 }
-
-
-
-

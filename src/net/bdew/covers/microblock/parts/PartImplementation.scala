@@ -21,6 +21,8 @@ package net.bdew.covers.microblock.parts
 
 import java.util
 
+import mcmultipart.client.microblock.MicroblockRegistryClient
+import mcmultipart.client.multipart.AdvancedEffectRenderer
 import mcmultipart.microblock.{Microblock, MicroblockClass}
 import mcmultipart.multipart.{IMultipart, ISlottedPart, ISolidPart, PartSlot}
 import mcmultipart.raytrace.PartMOP
@@ -35,6 +37,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
 import net.minecraftforge.common.property.{ExtendedBlockState, IExtendedBlockState}
+import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 
 trait PartImplementation extends Microblock with ISolidPart {
   def shape: MicroblockShape
@@ -95,6 +98,22 @@ trait PartImplementation extends Microblock with ISolidPart {
       }
     }
     box
+  }
+
+  @SideOnly(Side.CLIENT)
+  override def addHitEffects(hit: PartMOP, effectRenderer: AdvancedEffectRenderer): Boolean = {
+    val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
+    val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
+    effectRenderer.addBlockHitEffects(getPos, hit, getBounds, model.getParticleTexture)
+    true
+  }
+
+  @SideOnly(Side.CLIENT)
+  override def addDestroyEffects(effectRenderer: AdvancedEffectRenderer): Boolean = {
+    val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
+    val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
+    effectRenderer.addBlockDestroyEffects(getPos, model.getParticleTexture)
+    true
   }
 
   override def getModelPath: ResourceLocation = new ResourceLocation("covers", "microblock")
