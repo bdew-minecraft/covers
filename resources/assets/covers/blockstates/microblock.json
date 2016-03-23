@@ -8,9 +8,29 @@
     "inventory": [
       {
         "transform": {
-          "thirdperson": {
-            "translation": [-0.01, 0.115, -0.01],
+          "gui": {
+            "rotation": [{"x": 30}, {"y": 225}],
+            "scale": 0.625
+          },
+          "ground": {
+            "scale": 0.4
+          },
+          "fixed": {
+            "scale": 0.25
+          },
+          "thirdperson_righthand": {
+            "translation": [0, -0.15, 0],
             "scale": 0.5
+          },
+          "thirdperson_lefthand": {
+            "translation": [0, -0.15, 0],
+            "scale": 0.5
+          },
+          "firstperson_righthand": {
+            "scale": 0.4
+          },
+          "firstperson_lefthand": {
+            "scale": 0.4
           }
         }
       }

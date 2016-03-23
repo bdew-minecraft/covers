@@ -29,7 +29,6 @@ object ExtendedModelLoader extends ICustomModelLoader {
 
   override def loadModel(modelLocation: ResourceLocation) =
     modelLocation.getResourcePath match {
-      case "models/item/part.special" => PartModel
       case "models/block/part.special" => PartModel
       case _ => null
     }
