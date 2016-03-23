@@ -70,7 +70,7 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
     generateQuads(material, boxes, face, rand)
   }
 
-  override def getItemQuads(item: ItemStack, face: EnumFacing, rand: Long): util.List[BakedQuad] = {
+  override def getItemQuads(item: ItemStack, face: EnumFacing, mode: TransformType, rand: Long): util.List[BakedQuad] = {
     ItemMicroblock.getData(item) map { data =>
       generateQuads(data.material, data.shape.getItemBoxes(data.size), face, rand)
     } getOrElse missing.getQuads(null, face, rand)
