@@ -48,11 +48,11 @@ object PartPlacementRender {
       world <- Option(Client.world)
       stack <- Option(player.inventory.getCurrentItem) if stack.getItem == ItemMicroblock
       data <- ItemMicroblock.getData(stack)
-      place <- MicroblockLocation.calculate(world, player.rayTrace(Client.minecraft.playerController.getBlockReachDistance, ev.partialTicks), data.shape, data.size, data.material, true)
+      place <- MicroblockLocation.calculate(world, player.rayTrace(Client.minecraft.playerController.getBlockReachDistance, ev.getPartialTicks), data.shape, data.size, data.material, true)
     } {
-      val px = player.lastTickPosX + (player.posX - player.lastTickPosX) * ev.partialTicks
-      val py = player.lastTickPosY + (player.posY - player.lastTickPosY) * ev.partialTicks
-      val pz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * ev.partialTicks
+      val px = player.lastTickPosX + (player.posX - player.lastTickPosX) * ev.getPartialTicks
+      val py = player.lastTickPosY + (player.posY - player.lastTickPosY) * ev.getPartialTicks
+      val pz = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * ev.getPartialTicks
 
       GlStateManager.pushMatrix()
       GL11.glTranslated(-px, -py, -pz)
