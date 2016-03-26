@@ -24,15 +24,19 @@ import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.RecipeSorter
 
 object Recipes {
+  def regRecipe(recipe: MicroblockRecipe): Unit = {
+    GameRegistry.addRecipe(recipe)
+    RecipeSorter.register("bdew.covers:" + recipe.getClass.getSimpleName, recipe.getClass, RecipeSorter.Category.SHAPED, "")
+  }
+  
   def register(): Unit = {
-    GameRegistry.addRecipe(RecipeSplitBlock)
-    GameRegistry.addRecipe(RecipeSplitPart)
-    GameRegistry.addRecipe(RecipeCombineParts)
-    GameRegistry.addRecipe(RecipeReduceShape)
-    GameRegistry.addRecipe(RecipeCombineShapes)
-    GameRegistry.addRecipe(RecipeTransformPart)
-    GameRegistry.addRecipe(RecipeHollowPart)
-    GameRegistry.addRecipe(RecipeConvert)
-    RecipeSorter.register("bdew.covers:microblocks", classOf[MicroblockRecipe], RecipeSorter.Category.SHAPED, "")
+    regRecipe(RecipeSplitBlock)
+    regRecipe(RecipeSplitPart)
+    regRecipe(RecipeCombineParts)
+    regRecipe(RecipeReduceShape)
+    regRecipe(RecipeCombineShapes)
+    regRecipe(RecipeTransformPart)
+    regRecipe(RecipeHollowPart)
+    regRecipe(RecipeConvert)
   }
 }
