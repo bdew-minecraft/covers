@@ -21,6 +21,7 @@ package net.bdew.covers.microblock.parts
 
 import java.util
 
+import mcmultipart.MCMultiPartMod
 import mcmultipart.client.microblock.MicroblockRegistryClient
 import mcmultipart.client.multipart.AdvancedEffectRenderer
 import mcmultipart.microblock.{Microblock, MicroblockClass}
@@ -75,7 +76,7 @@ trait PartImplementation extends Microblock with ISolidPart {
   override def isSideSolid(side: EnumFacing): Boolean = shape.isSolid(getSlot, getSize, side)
 
   override def createBlockState(): ExtendedBlockState =
-    new ExtendedBlockState(null, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty :+ BoundsProperty).toArray)
+    new ExtendedBlockState(MCMultiPartMod.multipart, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty :+ BoundsProperty).toArray)
 
   override def getExtendedState(state: IBlockState): IExtendedBlockState =
     super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape).withProperty(BoundsProperty, calcBounds())
