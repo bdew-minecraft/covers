@@ -25,7 +25,7 @@ import mcmultipart.MCMultiPartMod
 import mcmultipart.client.microblock.MicroblockRegistryClient
 import mcmultipart.client.multipart.AdvancedEffectRenderer
 import mcmultipart.microblock.{Microblock, MicroblockClass}
-import mcmultipart.multipart.{IMultipart, ISlottedPart, ISolidPart, PartSlot}
+import mcmultipart.multipart._
 import mcmultipart.raytrace.PartMOP
 import mcmultipart.raytrace.RayTraceUtils.{AdvancedRayTraceResult, AdvancedRayTraceResultPart}
 import net.bdew.covers.microblock.shape.MicroblockShape
@@ -40,7 +40,7 @@ import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
 import net.minecraftforge.common.property.{ExtendedBlockState, IExtendedBlockState}
 import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 
-trait PartImplementation extends Microblock with ISolidPart {
+trait PartImplementation extends Microblock with ISolidPart with INormallyOccludingPart {
   def shape: MicroblockShape
 
   override def getMicroClass: MicroblockClass = shape
@@ -118,4 +118,9 @@ trait PartImplementation extends Microblock with ISolidPart {
   }
 
   override def getModelPath: ResourceLocation = new ResourceLocation("covers", "microblock")
+
+  override def addOcclusionBoxes(list: util.List[AxisAlignedBB]): Unit = {
+    for (bb <- shape.getPartBoxes(getSlot, getSize))
+      list.add(bb)
+  }
 }
