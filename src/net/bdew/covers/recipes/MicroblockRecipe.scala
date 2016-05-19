@@ -39,7 +39,11 @@ abstract class MicroblockRecipe extends IRecipe {
   override def getRemainingItems(inv: InventoryCrafting): Array[ItemStack] = {
     val res = new Array[ItemStack](inv.getSizeInventory)
     for (i <- res.indices; stack <- Option(inv.getStackInSlot(i))) {
-      if (stack.getItem == ItemSaw) res(i) = stack
+      if (stack.getItem == ItemSaw) {
+        val newStack = stack.copy()
+        newStack.stackSize = 1
+        res(i) = newStack
+      }
     }
     res
   }
