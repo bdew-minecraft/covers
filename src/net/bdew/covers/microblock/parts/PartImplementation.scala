@@ -23,7 +23,7 @@ import java.util
 
 import mcmultipart.MCMultiPartMod
 import mcmultipart.client.microblock.MicroblockRegistryClient
-import mcmultipart.client.multipart.AdvancedEffectRenderer
+import mcmultipart.client.multipart.AdvancedParticleManager
 import mcmultipart.microblock.{Microblock, MicroblockClass}
 import mcmultipart.multipart._
 import mcmultipart.raytrace.PartMOP
@@ -102,7 +102,7 @@ trait PartImplementation extends Microblock with ISolidPart with INormallyOcclud
   }
 
   @SideOnly(Side.CLIENT)
-  override def addHitEffects(hit: PartMOP, effectRenderer: AdvancedEffectRenderer): Boolean = {
+  override def addHitEffects(hit: PartMOP, effectRenderer: AdvancedParticleManager): Boolean = {
     val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
     val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
     effectRenderer.addBlockHitEffects(getPos, hit, getBounds, model.getParticleTexture)
@@ -110,7 +110,7 @@ trait PartImplementation extends Microblock with ISolidPart with INormallyOcclud
   }
 
   @SideOnly(Side.CLIENT)
-  override def addDestroyEffects(effectRenderer: AdvancedEffectRenderer): Boolean = {
+  override def addDestroyEffects(effectRenderer: AdvancedParticleManager): Boolean = {
     val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
     val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
     effectRenderer.addBlockDestroyEffects(getPos, model.getParticleTexture)

@@ -26,4 +26,5 @@ object MicroblockRecipeHandler extends IRecipeHandler[MicroblockRecipe] {
   override def getRecipeWrapper(recipe: MicroblockRecipe): IRecipeWrapper = recipe
   override def isRecipeValid(recipe: MicroblockRecipe): Boolean = true
   override def getRecipeClass: Class[MicroblockRecipe] = classOf[MicroblockRecipe]
+  override def getRecipeCategoryUid(recipe: MicroblockRecipe): String = VanillaRecipeCategoryUid.CRAFTING
 }

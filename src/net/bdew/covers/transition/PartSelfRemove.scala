@@ -20,7 +20,9 @@
 package net.bdew.covers.transition
 
 import mcmultipart.multipart.Multipart
+import net.minecraft.util.ResourceLocation
 
 class PartSelfRemove extends Multipart {
   override def onLoaded(): Unit = if (getContainer != null) getContainer.removePart(this)
+  override def getModelPath: ResourceLocation = new ResourceLocation("covers", "microblock")
 }
