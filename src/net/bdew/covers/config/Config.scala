@@ -24,15 +24,19 @@ import java.io.File
 import net.minecraftforge.common.config.Configuration
 
 object Config {
-  //  var showCanisters = true
-  //  var showFluidName = false
+
+  object ShowMode extends Enumeration {
+    val ALL, MINIMAL, NONE = Value
+  }
+
+  var jeiShowMode = ShowMode.ALL
 
   def load(cfg: File) {
     val c = new Configuration(cfg)
     c.load()
     try {
-      //      showCanisters = c.get(Configuration.CATEGORY_GENERAL, "Add filled canisters to NEI", true).getBoolean(false)
-      //      showFluidName = c.get(Configuration.CATEGORY_GENERAL, "Show fluid identifier on canisters", false).getBoolean(false)
+      val showModeProp = c.get(Configuration.CATEGORY_GENERAL, "JEI Display Mode", "ALL", "ALL will show everything, MINIMAL will show each shape once, NONE will hide all microblocks from JEI", Array("ALL, MINIMAL, NONE"))
+      jeiShowMode = ShowMode.withName(showModeProp.getString)
     } finally {
       c.save()
     }
