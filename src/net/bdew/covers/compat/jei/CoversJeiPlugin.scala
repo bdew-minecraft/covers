@@ -21,16 +21,24 @@ package net.bdew.covers.compat.jei
 
 import java.util
 
+import mezz.jei.api.ISubtypeRegistry.ISubtypeInterpreter
 import mezz.jei.api._
 import mezz.jei.api.recipe.IRecipeWrapper
 import net.bdew.covers.Covers
+import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.InternalRegistry
+import net.minecraft.item.ItemStack
 
 @JEIPlugin
 class CoversJeiPlugin extends BlankModPlugin {
   override def register(registry: IModRegistry): Unit = {
     Covers.logInfo("Simple Covers JEI Plugin loaded")
     registry.addRecipeHandlers(MicroblockRecipeHandler)
+
+    registry.getJeiHelpers.getSubtypeRegistry.registerNbtInterpreter(ItemMicroblock, new ISubtypeInterpreter {
+      override def getSubtypeInfo(itemStack: ItemStack): String =
+        ItemMicroblock.getData(itemStack).map(d => "%s:%s:%d".format(d.material.getName, d.shape.name, d.size)).orNull
+    })
 
     val toAdd = new util.ArrayList[IRecipeWrapper]()
 

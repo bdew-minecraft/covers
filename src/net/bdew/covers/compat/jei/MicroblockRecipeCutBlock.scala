@@ -42,7 +42,7 @@ object MicroblockRecipeCutBlock extends MicroblockRecipe {
     val partList = new util.ArrayList[ItemStack]()
 
     for (x <- InternalRegistry.materials.values)
-      partList.add(ItemMicroblock.makeStack(x, FaceShape, 8, 2))
+      partList.add(ItemMicroblock.makeStack(x, FaceShape, 4, 2))
 
     partList
   }
