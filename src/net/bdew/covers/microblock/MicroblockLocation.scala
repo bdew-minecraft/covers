@@ -31,7 +31,7 @@ case class MicroblockLocation(world: IBlockAccess, pos: BlockPos, part: BasePart
 
 object MicroblockLocation {
   def calculate(world: World, mop: RayTraceResult, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
-    if (mop.typeOfHit == RayTraceResult.Type.BLOCK)
+    if (mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK)
       calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3d(mop.getBlockPos)), mop.sideHit, shape, size, material, client)
     else
       None
