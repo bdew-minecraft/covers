@@ -58,7 +58,7 @@ object MicroblockModelProvider {
     builder.setTransformsFromState(state)
 
     for (packed <- ModelUtils.getAllQuads(base, blockState)) {
-      val quad = unpacker.unpack(packed).getQuad()
+      val quad = unpacker.unpack(packed).getQuad(shaded = false)
       val sf = scaleFactors(quad.vertexes.vector)
       builder.addQuadsGeneral(boxes filterNot (_.hidden.contains(quad.face)) map (box => quad.transform(x => clampVertex(x, box, sf))))
     }
