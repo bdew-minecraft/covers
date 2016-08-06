@@ -22,6 +22,7 @@ package net.bdew.covers.rendering
 import java.util
 
 import mcmultipart.client.microblock.MicroblockRegistryClient
+import net.bdew.covers.config.Config
 import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.MicroblockLocation
 import net.bdew.lib.Client
@@ -57,7 +58,7 @@ object PartPlacementRender {
       GlStateManager.pushMatrix()
       GL11.glTranslated(-px, -py, -pz)
       GL11.glTranslatef(place.pos.getX, place.pos.getY, place.pos.getZ)
-      GL11.glColor4f(1, 1, 1, 0.8f)
+      GL11.glColor4f(1, 1, 1, Config.placementPreviewTransparency)
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
       GL11.glEnable(GL11.GL_BLEND)
 

@@ -30,6 +30,8 @@ object Config {
   }
 
   var jeiShowMode = ShowMode.ALL
+  var showPlacementPreview = true
+  var placementPreviewTransparency = 0.8f
 
   def load(cfg: File) {
     val c = new Configuration(cfg)
@@ -37,6 +39,8 @@ object Config {
     try {
       val showModeProp = c.get(Configuration.CATEGORY_GENERAL, "JEI Display Mode", "ALL", "ALL will show everything, MINIMAL will show each shape once, NONE will hide all microblocks from JEI", Array("ALL, MINIMAL, NONE"))
       jeiShowMode = ShowMode.withName(showModeProp.getString)
+      showPlacementPreview = c.get(Configuration.CATEGORY_GENERAL, "Show Placement Preview", true, "Set to false to disable ghost preview when placing parts").getBoolean()
+      placementPreviewTransparency = c.get(Configuration.CATEGORY_GENERAL, "Placement Preview Transparency", 0.8f, "Transparency of the preview, 0 is completely transparent, 1 is opaque").getDouble().toFloat
     } finally {
       c.save()
     }

@@ -54,12 +54,12 @@ object Covers {
     TuningLoader.loadConfigFiles()
     Items.load()
     OldPartConverter.register()
+    if (event.getSide.isClient) Config.load(new File(configDir, "client.config"))
     if (event.getSide == Side.CLIENT) CoversClient.preInit()
   }
 
   @EventHandler
   def init(event: FMLInitializationEvent) {
-    if (event.getSide.isClient) Config.load(new File(configDir, "client.config"))
     TuningLoader.loadDelayed()
     Creative.init()
     CraftingManager.getInstance().addRecipe(RecipeSplitBlock)

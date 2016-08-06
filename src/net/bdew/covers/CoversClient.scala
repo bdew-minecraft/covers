@@ -19,13 +19,15 @@
 
 package net.bdew.covers
 
+import net.bdew.covers.config.Config
 import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
 import net.minecraftforge.client.model.ModelLoaderRegistry
 
 object CoversClient {
   def preInit(): Unit = {
     ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
-    PartPlacementRender.init()
+    if (Config.showPlacementPreview)
+      PartPlacementRender.init()
   }
 
   def init(): Unit = {
