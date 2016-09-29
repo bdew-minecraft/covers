@@ -25,7 +25,7 @@ import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 // Scala doesn't like narrowing of getOutputs return type in IRecipeWrapper because java List[T] is
 // invariant in terms of scala type system. So i have to combine them in a java class
 
-public class MicroblockRecipe extends BlankRecipeWrapper implements IShapedCraftingRecipeWrapper {
+public abstract class MicroblockRecipe extends BlankRecipeWrapper implements IShapedCraftingRecipeWrapper {
     @Override
     public int getWidth() {
         return 3;

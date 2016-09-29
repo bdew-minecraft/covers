@@ -44,27 +44,7 @@ class CoversJeiPlugin extends BlankModPlugin {
         ItemMicroblock.getData(itemStack).map(d => "%s:%s:%d".format(d.material.getName, d.shape.name, d.size)).orNull
     })
 
-    val toAdd = new util.ArrayList[IRecipeWrapper]()
-
-    toAdd.add(MicroblockRecipeCutBlock)
-    toAdd.add(MicroblockRecipeCombineBlock)
-
-    for (shape <- InternalRegistry.shapes.values; size <- shape.validSizes) {
-      if (size % 2 == 0 && shape.validSizes.contains(size / 2))
-        toAdd.add(new MicroblockRecipeCutPart(shape, size, shape, size / 2, true))
-      if (shape.validSizes.contains(size * 2))
-        toAdd.add(new MicroblockRecipeCombinePart(shape, size, shape, size * 2, false))
-      for ((newShape, newSize) <- shape.reduce(size))
-        toAdd.add(new MicroblockRecipeCutPart(shape, size, newShape, newSize, false))
-      for ((newShape, newSize) <- shape.combine(size))
-        toAdd.add(new MicroblockRecipeCombinePart(shape, size, newShape, newSize, true))
-      for ((newShape, newSize) <- shape.transform(size))
-        toAdd.add(new MicroblockRecipeTransform(shape, size, newShape, newSize))
-      for ((newShape, newSize) <- shape.hollow(size))
-        toAdd.add(new MicroblockRecipeHollowPart(shape, size, newShape, newSize))
-    }
-
-    registry.addRecipes(toAdd)
+    registry.addRecipeRegistryPlugin(CoversRegistryPlugin)
 
     if (Config.jeiShowMode == ShowMode.MINIMAL) {
       for {

@@ -46,6 +46,7 @@ object InternalRegistry {
     }
   }
 
+  def isValidMaterial(block: Block, meta: Int) = materials.isDefinedAt(Material(block, meta))
   def getMaterial(block: Block, meta: Int) = materials.get(Material(block, meta))
 
   registerShape(FaceShape)
