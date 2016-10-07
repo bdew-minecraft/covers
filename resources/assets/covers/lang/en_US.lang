@@ -18,12 +18,13 @@ bdew.covers.hollowface.1=Hollow %s Cover
 bdew.covers.hollowface.2=Hollow %s Panel
 bdew.covers.hollowface.4=Hollow %s Slab
 
+bdew.covers.ghost.1=Ghost %s Cover
+
 item.covers.Saw.name=Saw
 item.covers.PartNew.name=Invalid Microblock
 
 item.covers.Part.name=Deprecated Microblock
 item.covers.Part.description1=This is an item from an old version of Simple Covers
 item.covers.Part.description2=Put into a crafting table to convert to new format
-
 
 itemGroup.bdew.covers=Simple Covers

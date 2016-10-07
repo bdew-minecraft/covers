@@ -23,21 +23,21 @@ import java.util
 
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.parts.PartFace
+import net.bdew.covers.microblock.parts.PartGhostFace
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
-object FaceShape extends MicroblockShape("face") {
+object GhostFaceShape extends MicroblockShape("ghost") {
   override val validSlots = PartSlot.FACES.toSet
+  override def validSizes = Set(1)
   override def defaultSlot = PartSlot.NORTH
 
-  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartFace(material, slot, size, client)
+  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartGhostFace(material, slot, size, client)
 
-  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean =
-    slot == PartSlot.getFaceSlot(side)
+  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
 
   override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
     require(validSlots.contains(slot))
@@ -62,9 +62,7 @@ object FaceShape extends MicroblockShape("face") {
   }
 
   override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
-    val faces = FacesToSlot.find(slot.f1)
-    if (size >= 4) faces.add(PartSlot.CENTER)
-    faces
+    FacesToSlot.find(slot.f1)
   }
 
   override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
@@ -84,11 +82,5 @@ object FaceShape extends MicroblockShape("face") {
       Some(FacesToSlot.from(side))
   }
 
-  override def reduce(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
-  override def hollow(size: Int): Option[(MicroblockShape, Int)] = Some(HollowFaceShape, size)
-  override def ghost(size: Int): Option[(MicroblockShape, Int)] =
-    if (GhostFaceShape.validSizes.contains(size))
-      Some(GhostFaceShape, size)
-    else
-      None
+  override def ghost(size: Int): Option[(MicroblockShape, Int)] = Some(FaceShape, size)
 }

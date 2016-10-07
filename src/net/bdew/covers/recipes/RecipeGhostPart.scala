@@ -19,25 +19,20 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.transition.RecipeConvert
-import net.minecraftforge.fml.common.registry.GameRegistry
-import net.minecraftforge.oredict.RecipeSorter
+import net.bdew.covers.items.ItemMicroblock
+import net.bdew.lib.crafting.RecipeMatcher
+import net.minecraft.item.ItemStack
 
-object Recipes {
-  def regRecipe(recipe: MicroblockRecipe): Unit = {
-    GameRegistry.addRecipe(recipe)
-    RecipeSorter.register("bdew.covers:" + recipe.getClass.getSimpleName, recipe.getClass, RecipeSorter.Category.SHAPED, "")
-  }
-  
-  def register(): Unit = {
-    regRecipe(RecipeSplitBlock)
-    regRecipe(RecipeSplitPart)
-    regRecipe(RecipeCombineParts)
-    regRecipe(RecipeReduceShape)
-    regRecipe(RecipeCombineShapes)
-    regRecipe(RecipeTransformPart)
-    regRecipe(RecipeHollowPart)
-    regRecipe(RecipeGhostPart)
-    regRecipe(RecipeConvert)
+object RecipeGhostPart extends MicroblockRecipe {
+  override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
+    for {
+      top <- inv.at(1, 0).and(inv.matchItem(ItemMicroblock)).first()
+      data <- ItemMicroblock.getData(top.stack)
+      (newShape, newSize) <- data.shape.ghost(data.size)
+      if (inv.at(0, 1).and(top.same).verify()
+        && inv.at(2, 1).and(top.same).verify()
+        && inv.at(1, 2).and(top.same).verify()
+        && inv.allMatched)
+    } yield ItemMicroblock.makeStack(data.material, newShape, newSize, 4)
   }
 }

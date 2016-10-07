@@ -129,6 +129,14 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
   def hollow(size: Int): Option[(MicroblockShape, Int)] = None
 
   /**
+    * Describe how this shape changes to a ghost form (e.g. Face <-> Ghost Face)
+    *
+    * @param size size of current part
+    * @return Shape and size of new part, or None if not valid
+    */
+  def ghost(size: Int): Option[(MicroblockShape, Int)] = None
+
+  /**
     * @return a new part with the provided data
     */
   def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean): BasePart

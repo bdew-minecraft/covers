@@ -54,4 +54,5 @@ object InternalRegistry {
   registerShape(CornerShape)
   registerShape(CenterShape)
   registerShape(HollowFaceShape)
+  registerShape(GhostFaceShape)
 }

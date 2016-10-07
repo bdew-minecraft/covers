@@ -79,6 +79,22 @@ class RecipeHollowPart(material: IMicroMaterial, shape: MicroblockShape, size: I
   }
 }
 
+// 4 parts in diamond pattern => ghost version
+class RecipeGhostPart(material: IMicroMaterial, shape: MicroblockShape, size: Int) extends MicroblockRecipe {
+  override def getIngredients(ingredients: IIngredients): Unit = {
+    val (newShape, newSize) = shape.ghost(size).getOrElse(sys.error("Invalid recipe (%s,%s)".format(shape, size)))
+    val input = ItemMicroblock.makeStack(material, shape, size)
+
+    ingredients.setInputs(classOf[ItemStack], List(
+      null, input, null,
+      input, null, input,
+      null, input, null
+    ))
+
+    ingredients.setOutput(classOf[ItemStack], ItemMicroblock.makeStack(material, newShape, newSize, 8))
+  }
+}
+
 // saw above part => smaller shape
 class RecipeReducePart(material: IMicroMaterial, shape: MicroblockShape, size: Int) extends MicroblockRecipe {
   override def getIngredients(ingredients: IIngredients): Unit = {

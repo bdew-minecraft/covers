@@ -48,7 +48,8 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
     new RecipeCombinePart(defaultMaterial, FaceShape, 1),
     new RecipeHollowPart(defaultMaterial, FaceShape, 1),
     new RecipeTransform(defaultMaterial, EdgeShape, 1),
-    new RecipeUnreducePart(defaultMaterial, EdgeShape, 1)
+    new RecipeUnreducePart(defaultMaterial, EdgeShape, 1),
+    new RecipeGhostPart(defaultMaterial, FaceShape, 1)
   )
 
   val shapeSizes = for (shape <- InternalRegistry.shapes.values; size <- shape.validSizes) yield (shape, size)
@@ -60,6 +61,7 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
   val reduceReverse = makeReverse((shape, size) => shape.reduce(size))
   val combineReverse = makeReverse((shape, size) => shape.combine(size))
   val hollowReverse = makeReverse((shape, size) => shape.hollow(size))
+  val ghostReverse = makeReverse((shape, size) => shape.ghost(size))
 
   override def getRecipeCategoryUids[V](focus: IFocus[V]): util.List[String] = {
     if (focus.getMode == IFocus.Mode.NONE) return Collections.singletonList(VanillaRecipeCategoryUid.CRAFTING)
@@ -113,6 +115,9 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
           if (data.shape.transform(data.size).isDefined)
             list :+= new RecipeTransform(data.material, data.shape, data.size)
 
+          if (data.shape.ghost(data.size).isDefined)
+            list :+= new RecipeGhostPart(data.material, data.shape, data.size)
+
           list.asJava
         } else {
           var list = List.empty[MicroblockRecipe]
@@ -129,6 +134,7 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
           list ++= combineReverse.get((data.shape, data.size)) map { n => new RecipeUnreducePart(data.material, n._1, n._2) }
           list ++= transformReverse.get((data.shape, data.size)) map { n => new RecipeTransform(data.material, n._1, n._2) }
           list ++= hollowReverse.get((data.shape, data.size)) map { n => new RecipeHollowPart(data.material, n._1, n._2) }
+          list ++= ghostReverse.get((data.shape, data.size)) map { n => new RecipeGhostPart(data.material, n._1, n._2) }
 
           list.asJava
         }

@@ -20,7 +20,7 @@
 package net.bdew.covers.misc
 
 import net.bdew.covers.microblock.parts.PartImplementation
-import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, HollowFaceShape}
+import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, GhostFaceShape, HollowFaceShape}
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.Axis
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
@@ -70,6 +70,7 @@ object CoverUtils {
   val boundsPriorities = Map(
     FaceShape -> 2,
     HollowFaceShape -> 2,
+    GhostFaceShape -> 2,
     EdgeShape -> 1
   ).withDefaultValue(-1)
 

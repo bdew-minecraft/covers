@@ -19,11 +19,14 @@
 
 package net.bdew.covers.microblock.parts
 
+import java.util
+
 import mcmultipart.microblock.IMicroMaterial
 import mcmultipart.microblock.IMicroblock.IFaceMicroblock
 import mcmultipart.multipart.{IMultipart, PartSlot}
-import net.bdew.covers.microblock.shape.{FaceShape, HollowFaceShape}
+import net.bdew.covers.microblock.shape.{FaceShape, GhostFaceShape, HollowFaceShape}
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
 
 trait PartFaceBase extends BasePart with IFaceMicroblock {
   override def getFace: EnumFacing = getSlot.f1
@@ -55,3 +58,8 @@ class PartHollowFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemo
   }
 }
 
+class PartGhostFace(material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends BasePart(GhostFaceShape, material, slot, size, isRemote) with PartFaceBase {
+  override def isFaceHollow: Boolean = true
+  override def isEdgeHollow: Boolean = true
+  override def addOcclusionBoxes(list: util.List[AxisAlignedBB]): Unit = {}
+}
