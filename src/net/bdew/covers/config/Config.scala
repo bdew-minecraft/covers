@@ -32,6 +32,7 @@ object Config {
   var jeiShowMode = ShowMode.ALL
   var showPlacementPreview = true
   var placementPreviewTransparency = 0.8f
+  var modelCacheSize = 1000
 
   def load(cfg: File) {
     val c = new Configuration(cfg)
@@ -41,6 +42,7 @@ object Config {
       jeiShowMode = ShowMode.withName(showModeProp.getString)
       showPlacementPreview = c.get(Configuration.CATEGORY_GENERAL, "Show Placement Preview", true, "Set to false to disable ghost preview when placing parts").getBoolean()
       placementPreviewTransparency = c.get(Configuration.CATEGORY_GENERAL, "Placement Preview Transparency", 0.8f, "Transparency of the preview, 0 is completely transparent, 1 is opaque").getDouble().toFloat
+      modelCacheSize = c.get(Configuration.CATEGORY_GENERAL, "Model Cache Size", 1000, "Size of model cache, bigger values will improve performance when looking at lots of covers, at the cost of memory usage. ~6kb per entry.").getInt
     } finally {
       c.save()
     }

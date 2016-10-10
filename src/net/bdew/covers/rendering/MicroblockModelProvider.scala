@@ -23,6 +23,7 @@ import java.util
 
 import mcmultipart.client.microblock.{IMicroModelProvider, MicroblockRegistryClient}
 import mcmultipart.microblock.IMicroMaterial
+import net.bdew.covers.config.Config
 import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
@@ -48,7 +49,7 @@ class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvi
 }
 
 object MicroblockModelProvider {
-  def getModel(blockState: IBlockState, boxes: List[AABBHiddenFaces], state: IModelState): IBakedModel = {
+  val cache = new Cache[(IBlockState, List[AABBHiddenFaces], IModelState), IBakedModel](Config.modelCacheSize, { case (blockState, boxes, state) =>
     val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(blockState)
     val unpacker = new Unpacker(DefaultVertexFormats.ITEM)
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
@@ -64,7 +65,9 @@ object MicroblockModelProvider {
     }
 
     builder.build()
-  }
+  })
+
+  def getModel(blockState: IBlockState, boxes: List[AABBHiddenFaces], state: IModelState): IBakedModel = cache(blockState, boxes, state)
 
   def scaleFactors(v: Vector[TVertex]) = {
     var xf = (0f, 0f)
