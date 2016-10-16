@@ -30,7 +30,7 @@ object CoversClient {
       PartPlacementRender.init()
   }
 
-  def init(): Unit = {
+  def postInit(): Unit = {
     MicroblockModelProvider.registerProviders()
   }
 }

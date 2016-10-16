@@ -34,6 +34,8 @@ object Tuning extends ConfigSection
 object TuningLoader {
   case class MaterialRegisterBlock(spec: StackRef) extends ConfigStatement
 
+  var materialBlocks = List.empty[StackRef]
+
   class Parser extends RecipeParser with GenericConfigParser {
     def stAddMaterial = "AddMaterial" ~> spec ^^ MaterialRegisterBlock
     override def configStatement: Parser[ConfigStatement] = super.configStatement | stAddMaterial
@@ -45,19 +47,7 @@ object TuningLoader {
     override def newParser() = new Parser()
     override def processConfigStatement(s: ConfigStatement): Unit = s match {
       case MaterialRegisterBlock(sp) =>
-        val stacks = getAllConcreteStacks(sp)
-        if (stacks.isEmpty) Covers.logWarn("Material block not found - %s", sp)
-        for (stack <- stacks) {
-          if (stack.getItem.isInstanceOf[ItemBlock]) {
-            Covers.logDebug("Registering multiblock material from %s", stack)
-            if (stack.getItemDamage == OreDictionary.WILDCARD_VALUE) {
-              Covers.logDebug("Result meta is unset, defaulting to 0")
-              stack.setItemDamage(0)
-            }
-            val block = Block.getBlockFromItem(stack.getItem)
-            InternalRegistry.registerMaterial(block, stack.getItemDamage)
-          } else Covers.logWarn("Item %s is not a block - skipping material registration", stack)
-        }
+        materialBlocks :+= sp
       case _ => super.processConfigStatement(s)
     }
   }
@@ -82,6 +72,25 @@ object TuningLoader {
       configDir = Covers.configDir,
       resBaseName = "/assets/covers/config/",
       loader = loader)
+  }
+
+  def processMaterials(): Unit = {
+    for (sp <- materialBlocks) {
+      val stacks = loader.getAllConcreteStacks(sp)
+      if (stacks.isEmpty) Covers.logWarn("Material block not found - %s", sp)
+      for (stack <- stacks) {
+        if (stack.getItem.isInstanceOf[ItemBlock]) {
+          Covers.logDebug("Registering multiblock material from %s", stack)
+          if (stack.getItemDamage == OreDictionary.WILDCARD_VALUE) {
+            Covers.logDebug("Result meta is unset, defaulting to 0")
+            stack.setItemDamage(0)
+          }
+          val block = Block.getBlockFromItem(stack.getItem)
+          InternalRegistry.registerMaterial(block, stack.getItemDamage)
+        } else Covers.logWarn("Item %s is not a block - skipping material registration", stack)
+      }
+    }
+    materialBlocks = List.empty
   }
 }
 

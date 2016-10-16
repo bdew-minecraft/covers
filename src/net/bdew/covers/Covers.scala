@@ -64,10 +64,11 @@ object Covers {
     Creative.init()
     CraftingManager.getInstance().addRecipe(RecipeSplitBlock)
     Recipes.register()
-    if (event.getSide == Side.CLIENT) CoversClient.init()
   }
 
   @EventHandler
-  def postInit(event: FMLPostInitializationEvent) {
+  def postInit(event: FMLPostInitializationEvent): Unit = {
+    TuningLoader.processMaterials()
+    if (event.getSide == Side.CLIENT) CoversClient.postInit()
   }
 }
