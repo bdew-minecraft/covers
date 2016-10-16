@@ -34,8 +34,9 @@ import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.{BlockRenderLayer, EnumFacing}
+import net.minecraftforge.client.MinecraftForgeClient
 import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 
 class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvider {
@@ -49,7 +50,7 @@ class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvi
 }
 
 object MicroblockModelProvider {
-  val cache = new Cache[(IBlockState, List[AABBHiddenFaces], IModelState), IBakedModel](Config.modelCacheSize, { case (blockState, boxes, state) =>
+  val cache = new Cache[(IBlockState, List[AABBHiddenFaces], IModelState, BlockRenderLayer), IBakedModel](Config.modelCacheSize, { case (blockState, boxes, state, layer) =>
     val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(blockState)
     val unpacker = new Unpacker(DefaultVertexFormats.ITEM)
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
@@ -67,7 +68,7 @@ object MicroblockModelProvider {
     builder.build()
   })
 
-  def getModel(blockState: IBlockState, boxes: List[AABBHiddenFaces], state: IModelState): IBakedModel = cache(blockState, boxes, state)
+  def getModel(blockState: IBlockState, boxes: List[AABBHiddenFaces], state: IModelState): IBakedModel = cache(blockState, boxes, state, MinecraftForgeClient.getRenderLayer)
 
   def scaleFactors(v: Vector[TVertex]) = {
     var xf = (0f, 0f)

@@ -37,7 +37,8 @@ import net.minecraft.client.renderer.block.model.{BakedQuad, IBakedModel, ItemCa
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
 import net.minecraft.item.ItemStack
-import net.minecraft.util.{EnumFacing, ResourceLocation}
+import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
+import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.client.model._
 import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 import net.minecraftforge.common.property.IExtendedBlockState
@@ -72,7 +73,13 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
 
   override def getItemQuads(item: ItemStack, face: EnumFacing, mode: TransformType, rand: Long): util.List[BakedQuad] = {
     ItemMicroblock.getData(item) map { data =>
-      generateQuads(data.material, data.shape.getItemBoxes(data.size), face, rand)
+      val list = new util.ArrayList[BakedQuad]()
+      for (layer <- BlockRenderLayer.values().toList.filter(data.material.canRenderInLayer)) {
+        ForgeHooksClient.setRenderLayer(layer)
+        list.addAll(generateQuads(data.material, data.shape.getItemBoxes(data.size), face, rand))
+      }
+      ForgeHooksClient.setRenderLayer(null)
+      list
     } getOrElse missing.getQuads(null, face, rand)
   }
 

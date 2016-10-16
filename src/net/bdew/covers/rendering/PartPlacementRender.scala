@@ -29,7 +29,8 @@ import net.bdew.lib.Client
 import net.bdew.lib.render.WorldQuadRender
 import net.bdew.lib.render.models.ModelUtils
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.{BlockRenderLayer, EnumFacing}
+import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -64,12 +65,16 @@ object PartPlacementRender {
 
       val provider = MicroblockRegistryClient.getModelProviderFor(data.material)
 
-      val quads = place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
-        val model = provider.provideMicroModel(place.part.getMicroMaterial, bb, bb.hidden)
-        ModelUtils.getAllQuads(model, null)
+      BlockRenderLayer.values() filter data.material.canRenderInLayer foreach { layer =>
+        ForgeHooksClient.setRenderLayer(layer)
+        WorldQuadRender.renderBakedQuads(
+          place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
+            ModelUtils.getAllQuads(provider.provideMicroModel(place.part.getMicroMaterial, bb, bb.hidden), null)
+          }
+        )
       }
 
-      WorldQuadRender.renderBakedQuads(quads)
+      ForgeHooksClient.setRenderLayer(null)
 
       GL11.glColor4f(1, 1, 1, 1)
       GL11.glDisable(GL11.GL_BLEND)
