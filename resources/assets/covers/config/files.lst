@@ -1,4 +1,5 @@
 # List of internal config files to load
 
-materials.cfg
 recipes.cfg
+materials_minecraft.cfg
+materials_chisel.cfg
