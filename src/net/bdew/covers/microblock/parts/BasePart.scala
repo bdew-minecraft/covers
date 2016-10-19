@@ -21,6 +21,21 @@ package net.bdew.covers.microblock.parts
 
 import mcmultipart.microblock.{IMicroMaterial, Microblock}
 import mcmultipart.multipart.PartSlot
+import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.microblock.shape.MicroblockShape
+import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.network.PacketBuffer
 
-abstract class BasePart(val shape: MicroblockShape, material: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends Microblock(material, slot, size, isRemote) with PartImplementation
+abstract class BasePart(val shape: MicroblockShape, aMaterial: IMicroMaterial, slot: PartSlot, size: Int, isRemote: Boolean) extends Microblock(aMaterial, slot, size, isRemote) with PartImplementation {
+  override def readFromNBT(tag: NBTTagCompound): Unit = {
+    super.readFromNBT(tag)
+    if (material == null) material = InternalRegistry.defaultMaterial
+  }
+
+  override def readUpdatePacket(buf: PacketBuffer): Unit = {
+    super.readUpdatePacket(buf)
+    if (material == null) {
+      material = InternalRegistry.defaultMaterial
+    }
+  }
+}

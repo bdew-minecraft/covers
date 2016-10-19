@@ -23,6 +23,7 @@ import mcmultipart.microblock.{BlockMicroMaterial, IMicroMaterial, MicroblockReg
 import net.bdew.covers.Covers
 import net.bdew.covers.microblock.shape._
 import net.minecraft.block.Block
+import net.minecraft.init.Blocks
 
 object InternalRegistry {
   case class Material(block: Block, meta: Int)
@@ -30,20 +31,24 @@ object InternalRegistry {
   var shapes = Map.empty[String, MicroblockShape]
   var materials = Map.empty[Material, IMicroMaterial]
 
+  val defaultMaterial = registerMaterial(Blocks.STONE, 0)
+
   def registerShape(p: MicroblockShape): Unit = {
     MicroblockRegistry.registerMicroClass(p)
     shapes += p.name -> p
   }
 
-  def registerMaterial(block: Block, meta: Int): Unit = {
+  def registerMaterial(block: Block, meta: Int): IMicroMaterial = {
     val material = new BlockMicroMaterial(block.getStateFromMeta(meta))
-    if (MicroblockRegistry.getMaterial(material.getName) == null) {
+    val actualMaterial = if (MicroblockRegistry.getMaterial(material.getName) == null) {
       MicroblockRegistry.registerMaterial(material)
-      materials += Material(block, meta) -> material
+      material
     } else {
-      Covers.logInfo("Material already registered - skipping: %s".format(material.getName))
-      materials += Material(block, meta) -> MicroblockRegistry.getMaterial(material.getName)
+      Covers.logDebug("Material already registered - skipping: %s".format(material.getName))
+      MicroblockRegistry.getMaterial(material.getName)
     }
+    materials += Material(block, meta) -> actualMaterial
+    actualMaterial
   }
 
   def isValidMaterial(block: Block, meta: Int) = materials.isDefinedAt(Material(block, meta))

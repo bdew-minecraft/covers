@@ -27,14 +27,13 @@ import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
 import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, MicroblockShape}
 import net.minecraft.block.Block
-import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 object CoversRegistryPlugin extends IRecipeRegistryPlugin {
-  val defaultMaterial = InternalRegistry.getMaterial(Blocks.STONE, 0).getOrElse(sys.error("No stone material?"))
+  val defaultMaterial = InternalRegistry.defaultMaterial
 
   val sawRecipes = List(
     new RecipeCutBlock(defaultMaterial),
