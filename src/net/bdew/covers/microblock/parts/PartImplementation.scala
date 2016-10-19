@@ -104,16 +104,20 @@ trait PartImplementation extends Microblock with ISolidPart with INormallyOcclud
   @SideOnly(Side.CLIENT)
   override def addHitEffects(hit: PartMOP, effectRenderer: AdvancedParticleManager): Boolean = {
     val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
-    val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
-    effectRenderer.addBlockHitEffects(getPos, hit, getBounds, model.getParticleTexture)
+    if (provider != null) {
+      val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
+      effectRenderer.addBlockHitEffects(getPos, hit, getBounds, model.getParticleTexture)
+    }
     true
   }
 
   @SideOnly(Side.CLIENT)
   override def addDestroyEffects(effectRenderer: AdvancedParticleManager): Boolean = {
     val provider = MicroblockRegistryClient.getModelProviderFor(getMicroMaterial)
-    val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
-    effectRenderer.addBlockDestroyEffects(getPos, model.getParticleTexture)
+    if (provider != null) {
+      val model = provider.provideMicroModel(getMicroMaterial, getBounds, util.EnumSet.noneOf(classOf[EnumFacing]))
+      effectRenderer.addBlockDestroyEffects(getPos, model.getParticleTexture)
+    }
     true
   }
 
