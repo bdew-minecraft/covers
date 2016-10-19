@@ -76,18 +76,23 @@ object TuningLoader {
 
   def processMaterials(): Unit = {
     for (sp <- materialBlocks) {
-      val stacks = loader.getAllConcreteStacks(sp)
-      if (stacks.isEmpty) Covers.logWarn("Material block not found - %s", sp)
-      for (stack <- stacks) {
-        if (stack.getItem.isInstanceOf[ItemBlock]) {
-          Covers.logDebug("Registering multiblock material from %s", stack)
-          if (stack.getItemDamage == OreDictionary.WILDCARD_VALUE) {
-            Covers.logDebug("Result meta is unset, defaulting to 0")
-            stack.setItemDamage(0)
-          }
-          val block = Block.getBlockFromItem(stack.getItem)
-          InternalRegistry.registerMaterial(block, stack.getItemDamage)
-        } else Covers.logWarn("Item %s is not a block - skipping material registration", stack)
+      try {
+        val stacks = loader.getAllConcreteStacks(sp)
+        if (stacks.isEmpty) Covers.logWarn("Material block not found - %s", sp)
+        for (stack <- stacks) {
+          if (stack.getItem.isInstanceOf[ItemBlock]) {
+            Covers.logDebug("Registering multiblock material from %s", stack)
+            if (stack.getItemDamage == OreDictionary.WILDCARD_VALUE) {
+              Covers.logDebug("Result meta is unset, defaulting to 0")
+              stack.setItemDamage(0)
+            }
+            val block = Block.getBlockFromItem(stack.getItem)
+            InternalRegistry.registerMaterial(block, stack.getItemDamage)
+          } else Covers.logWarn("Item %s is not a block - skipping material registration", stack)
+        }
+      } catch {
+        case e: Throwable =>
+          Covers.logWarn("Failed to register material %s - %s", sp, e.getMessage)
       }
     }
     materialBlocks = List.empty
