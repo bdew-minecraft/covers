@@ -81,6 +81,8 @@ trait PartImplementation extends Microblock with ISolidPart with INormallyOcclud
   override def getExtendedState(state: IBlockState): IExtendedBlockState =
     super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape).withProperty(BoundsProperty, calcBounds())
 
+  override def shouldBreakingUseExtendedState(): Boolean = true
+
   override def occlusionTest(part: IMultipart): Boolean = {
     super.occlusionTest(part) && (
       if (part.isInstanceOf[ISlottedPart]) {
