@@ -19,11 +19,8 @@
 
 package net.bdew.covers.compat.jei
 
-import java.util
-
 import mezz.jei.api.ISubtypeRegistry.ISubtypeInterpreter
 import mezz.jei.api._
-import mezz.jei.api.recipe.IRecipeWrapper
 import net.bdew.covers.Covers
 import net.bdew.covers.config.Config
 import net.bdew.covers.config.Config.ShowMode
@@ -35,14 +32,17 @@ import net.minecraftforge.oredict.OreDictionary
 
 @JEIPlugin
 class CoversJeiPlugin extends BlankModPlugin {
-  override def register(registry: IModRegistry): Unit = {
-    Covers.logInfo("Simple Covers JEI Plugin loaded")
-    registry.addRecipeHandlers(MicroblockRecipeHandler)
-
-    registry.getJeiHelpers.getSubtypeRegistry.registerNbtInterpreter(ItemMicroblock, new ISubtypeInterpreter {
+  override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry): Unit = {
+    subtypeRegistry.registerNbtInterpreter(ItemMicroblock, new ISubtypeInterpreter {
       override def getSubtypeInfo(itemStack: ItemStack): String =
         ItemMicroblock.getData(itemStack).map(d => "%s:%s:%d".format(d.material.getName, d.shape.name, d.size)).orNull
     })
+  }
+
+  override def register(registry: IModRegistry): Unit = {
+    Covers.logInfo("Simple Covers JEI Plugin loaded")
+
+    registry.addRecipeHandlers(MicroblockRecipeHandler)
 
     registry.addRecipeRegistryPlugin(CoversRegistryPlugin)
 
