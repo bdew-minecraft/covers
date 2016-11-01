@@ -20,7 +20,7 @@
 package net.bdew.covers
 
 import net.bdew.covers.config.Config
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockModelProvider, PartPlacementRender}
+import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockColorProvider, MicroblockModelProvider, PartPlacementRender}
 import net.minecraftforge.client.model.ModelLoaderRegistry
 
 object CoversClient {
@@ -32,5 +32,6 @@ object CoversClient {
 
   def postInit(): Unit = {
     MicroblockModelProvider.registerProviders()
+    MicroblockColorProvider.register()
   }
 }

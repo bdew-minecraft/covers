@@ -29,7 +29,7 @@ import mcmultipart.multipart._
 import mcmultipart.raytrace.PartMOP
 import mcmultipart.raytrace.RayTraceUtils.{AdvancedRayTraceResult, AdvancedRayTraceResultPart}
 import net.bdew.covers.microblock.shape.MicroblockShape
-import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
+import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty, PosProperty}
 import net.bdew.covers.misc.{CoverUtils, FacesToSlot}
 import net.bdew.lib.Misc
 import net.minecraft.block.state.IBlockState
@@ -76,10 +76,13 @@ trait PartImplementation extends Microblock with ISolidPart with INormallyOcclud
   override def isSideSolid(side: EnumFacing): Boolean = shape.isSolid(getSlot, getSize, side)
 
   override def createBlockState(): ExtendedBlockState =
-    new ExtendedBlockState(MCMultiPartMod.multipart, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty :+ BoundsProperty).toArray)
+    new ExtendedBlockState(MCMultiPartMod.multipart, Array.empty, (Microblock.PROPERTIES.toList :+ MicroblockShapeProperty :+ BoundsProperty :+ PosProperty).toArray)
 
   override def getExtendedState(state: IBlockState): IExtendedBlockState =
-    super.getExtendedState(state).withProperty(MicroblockShapeProperty, shape).withProperty(BoundsProperty, calcBounds())
+    super.getExtendedState(state)
+      .withProperty(MicroblockShapeProperty, shape)
+      .withProperty(BoundsProperty, calcBounds())
+      .withProperty(PosProperty, getPos)
 
   override def shouldBreakingUseExtendedState(): Boolean = true
 

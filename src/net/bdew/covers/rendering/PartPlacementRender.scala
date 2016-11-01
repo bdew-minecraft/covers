@@ -22,16 +22,16 @@ package net.bdew.covers.rendering
 import java.util
 
 import mcmultipart.client.microblock.MicroblockRegistryClient
-import net.bdew.covers.config.Config
 import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.MicroblockLocation
 import net.bdew.lib.Client
-import net.bdew.lib.render.WorldQuadRender
 import net.bdew.lib.render.models.ModelUtils
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.renderer.{GlStateManager, Tessellator}
 import net.minecraft.util.{BlockRenderLayer, EnumFacing}
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraftforge.client.model.pipeline.VertexBufferConsumer
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.opengl.GL11
@@ -59,20 +59,28 @@ object PartPlacementRender {
       GlStateManager.pushMatrix()
       GL11.glTranslated(-px, -py, -pz)
       GL11.glTranslatef(place.pos.getX, place.pos.getY, place.pos.getZ)
-      GL11.glColor4f(1, 1, 1, Config.placementPreviewTransparency)
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
       GL11.glEnable(GL11.GL_BLEND)
 
       val provider = MicroblockRegistryClient.getModelProviderFor(data.material)
 
+      val colorizer = new QuadColorHelper(data.material.getDefaultMaterialState, Client.world, place.pos)
+
+      val T = Tessellator.getInstance()
+      val B = T.getBuffer
+      B.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)
+      val consumer = new VertexBufferConsumer(B)
+
       BlockRenderLayer.values() filter data.material.canRenderInLayer foreach { layer =>
         ForgeHooksClient.setRenderLayer(layer)
-        WorldQuadRender.renderBakedQuads(
+        colorizer.colorizeQuads(
           place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
             ModelUtils.getAllQuads(provider.provideMicroModel(place.part.getMicroMaterial, bb, bb.hidden), null)
           }
-        )
+        ) foreach (_.pipe(consumer))
       }
+
+      T.draw()
 
       ForgeHooksClient.setRenderLayer(null)
 
