@@ -33,7 +33,7 @@ import net.minecraftforge.oredict.OreDictionary
 @JEIPlugin
 class CoversJeiPlugin extends BlankModPlugin {
   override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry): Unit = {
-    subtypeRegistry.registerNbtInterpreter(ItemMicroblock, new ISubtypeInterpreter {
+    subtypeRegistry.registerSubtypeInterpreter(ItemMicroblock, new ISubtypeInterpreter {
       override def getSubtypeInfo(itemStack: ItemStack): String =
         ItemMicroblock.getData(itemStack).map(d => "%s:%s:%d".format(d.material.getName, d.shape.name, d.size)).orNull
     })
@@ -52,10 +52,10 @@ class CoversJeiPlugin extends BlankModPlugin {
         shape <- InternalRegistry.shapes.values
         size <- shape.validSizes
       } {
-        registry.getJeiHelpers.getItemBlacklist.addItemToBlacklist(ItemMicroblock.makeStack(material, shape, size))
+        registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(ItemMicroblock.makeStack(material, shape, size))
       }
     } else if (Config.jeiShowMode == ShowMode.NONE) {
-      registry.getJeiHelpers.getItemBlacklist.addItemToBlacklist(new ItemStack(ItemMicroblock, 1, OreDictionary.WILDCARD_VALUE))
+      registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(new ItemStack(ItemMicroblock, 1, OreDictionary.WILDCARD_VALUE))
     }
   }
 
