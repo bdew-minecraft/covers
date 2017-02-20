@@ -21,7 +21,8 @@ package net.bdew.covers
 
 import net.bdew.covers.items.ItemSaw
 import net.bdew.lib.CreativeTabContainer
+import net.minecraft.item.ItemStack
 
 object Creative extends CreativeTabContainer {
-  val main = new Tab("bdew.covers", ItemSaw)
+  val main = new Tab("bdew.covers", new ItemStack(ItemSaw))
 }

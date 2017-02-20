@@ -19,25 +19,26 @@
 
 package net.bdew.covers.microblock
 
-import mcmultipart.microblock.IMicroMaterial
-import mcmultipart.multipart.MultipartHelper
-import net.bdew.covers.microblock.parts.BasePart
+import mcmultipart.api.microblock.MicroMaterial
+import mcmultipart.api.multipart.MultipartHelper
+import mcmultipart.api.slot.IPartSlot
 import net.bdew.covers.microblock.shape.MicroblockShape
+import net.minecraft.block.state.IBlockState
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.{BlockPos, RayTraceResult, Vec3d}
 import net.minecraft.world.{IBlockAccess, World}
 
-case class MicroblockLocation(world: IBlockAccess, pos: BlockPos, part: BasePart)
+case class MicroblockLocation(world: IBlockAccess, pos: BlockPos, slot: IPartSlot, state: IBlockState, intoContainer: Boolean)
 
 object MicroblockLocation {
-  def calculate(world: World, mop: RayTraceResult, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
+  def calculate(world: World, mop: RayTraceResult, shape: MicroblockShape, size: Int, material: MicroMaterial, client: Boolean): Option[MicroblockLocation] = {
     if (mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK)
       calculate(world, mop.getBlockPos, mop.hitVec.subtract(new Vec3d(mop.getBlockPos)), mop.sideHit, shape, size, material, client)
     else
       None
   }
 
-  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3d, hitFaceOriginal: EnumFacing, shape: MicroblockShape, size: Int, material: IMicroMaterial, client: Boolean): Option[MicroblockLocation] = {
+  def calculate(world: World, blockPosOriginal: BlockPos, hitVecOriginal: Vec3d, hitFaceOriginal: EnumFacing, shape: MicroblockShape, size: Int, material: MicroMaterial, client: Boolean): Option[MicroblockLocation] = {
     var blockPos = blockPosOriginal
     var place = hitVecOriginal
     var hitFace = hitFaceOriginal
@@ -71,9 +72,11 @@ object MicroblockLocation {
     }
 
     shape.getSlotFromHit(place, hitFace) flatMap { slot =>
-      val part = shape.createPart(slot, size, material, client)
-      if (MultipartHelper.canAddPart(world, blockPos, part))
-        Some(MicroblockLocation(world, blockPos, part))
+      val state = shape.createBlockState(slot, material, size)
+      if (world.isAirBlock(blockPos) || world.getBlockState(blockPos).getBlock.isReplaceable(world, blockPos))
+        Some(MicroblockLocation(world, blockPos, slot, state, false))
+      else if (MultipartHelper.addPart(world, blockPos, slot, state, true))
+        Some(MicroblockLocation(world, blockPos, slot, state, true))
       else
         None
     }

@@ -21,32 +21,26 @@ package net.bdew.covers.microblock.shape
 
 import java.util
 
-import mcmultipart.microblock.IMicroMaterial
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.parts.PartGhostFace
+import mcmultipart.api.slot.{EnumFaceSlot, IPartSlot}
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.AxisDirection
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
-object GhostFaceShape extends MicroblockShape("ghost") {
-  override val validSlots = PartSlot.FACES.toSet
+object GhostFaceShape extends MicroblockShapeImpl("ghost", classOf[EnumFaceSlot], EnumFaceSlot.values().toSet, EnumFaceSlot.NORTH) {
   override def validSizes = Set(1)
-  override def defaultSlot = PartSlot.NORTH
 
-  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartGhostFace(material, slot, size, client)
+  override def isSolid(slot: IPartSlot, size: Int, side: EnumFacing): Boolean = false
 
-  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
-
-  override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
-    require(validSlots.contains(slot))
+  override def getBoundingBox(aSlot: IPartSlot, size: Int): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
     require(validSizes.contains(size))
     val doubleSize = size / 8D
 
-    val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
+    val (min, max) = if (slot.getFacing.getAxisDirection == AxisDirection.POSITIVE) (1 - doubleSize, 1D) else (0D, doubleSize)
 
-    CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.f1.getAxis, min, max)
+    CoverUtils.clampBBOnAxis(new AxisAlignedBB(0, 0, 0, 1, 1, 1), slot.getFacing.getAxis, min, max)
   }
 
   override def getItemBoxes(size: Int): List[AABBHiddenFaces] = {
@@ -56,16 +50,17 @@ object GhostFaceShape extends MicroblockShape("ghost") {
     List(new AABBHiddenFaces(0, 0, min, 1, 1, max, AABBHiddenFaces.noFaces))
   }
 
-  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
-    val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
-    CoverUtils.clampBBOnAxis(box, slot.f1.getAxis, min, max)
+  override def exclusionBox(aSlot: IPartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
+    val (min, max) = if (slot.getFacing.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+    CoverUtils.clampBBOnAxis(box, slot.getFacing.getAxis, min, max)
   }
 
-  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
-    FacesToSlot.find(slot.f1)
+  override def getShadowedSlots(slot: IPartSlot, size: Int): util.Set[IPartSlot] = {
+    FacesToSlot.find(validateSlot(slot).getFacing)
   }
 
-  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[IPartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)

@@ -4,7 +4,7 @@
     "model": "covers:part.special"
   },
   "variants": {
-    "multipart": [{}],
+    "normal": [{}],
     "inventory": [
       {
         "transform": {

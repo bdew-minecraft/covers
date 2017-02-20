@@ -21,35 +21,28 @@ package net.bdew.covers.microblock.shape
 
 import java.util
 
-import mcmultipart.microblock.IMicroMaterial
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.parts.PartEdge
+import mcmultipart.api.slot.{EnumCenterSlot, EnumEdgeSlot, IPartSlot}
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
-object EdgeShape extends MicroblockShape("edge") {
-  override val validSlots = PartSlot.EDGES.toSet
-  override val defaultSlot = PartSlot.EDGE_NNZ
-
-  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartEdge(material, slot, size, client)
-
+object EdgeShape extends MicroblockShapeImpl("edge", classOf[EnumEdgeSlot], EnumEdgeSlot.values().toSet, EnumEdgeSlot.EDGE_NNZ) {
   private def interval(size: Double, positive: Boolean): (Double, Double) =
     if (positive)
       (1 - size, 1)
     else
       (0, size)
 
-  override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
-    require(validSlots.contains(slot))
+  override def getBoundingBox(aSlot: IPartSlot, size: Int): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
     require(validSizes.contains(size))
     val doubleSize = size / 8D
 
     val directions = Map(
-      slot.f1.getAxis -> (slot.f1.getAxisDirection == AxisDirection.POSITIVE),
-      slot.f2.getAxis -> (slot.f2.getAxisDirection == AxisDirection.POSITIVE)
+      slot.getFace1.getAxis -> (slot.getFace1.getAxisDirection == AxisDirection.POSITIVE),
+      slot.getFace2.getAxis -> (slot.getFace2.getAxisDirection == AxisDirection.POSITIVE)
     )
 
     val (minX, maxX) = directions.get(Axis.X).map(d => interval(doubleSize, d)).getOrElse(0D, 1D)
@@ -66,25 +59,27 @@ object EdgeShape extends MicroblockShape("edge") {
     List(new AABBHiddenFaces(min, 0, min, max, 1, max, AABBHiddenFaces.noFaces))
   }
 
-  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
-    if (sides.contains(slot.f1)) {
-      val (min, max) = if (slot.f2.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
-      CoverUtils.clampBBOnAxis(box, slot.f2.getAxis, min, max)
-    } else if (sides.contains(slot.f2)) {
-      val (min, max) = if (slot.f1.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
-      CoverUtils.clampBBOnAxis(box, slot.f1.getAxis, min, max)
+  override def exclusionBox(aSlot: IPartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
+    if (sides.contains(slot.getFace1)) {
+      val (min, max) = if (slot.getFace2.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+      CoverUtils.clampBBOnAxis(box, slot.getFace2.getAxis, min, max)
+    } else if (sides.contains(slot.getFace2)) {
+      val (min, max) = if (slot.getFace1.getAxisDirection == AxisDirection.POSITIVE) (0D, 1 - size / 8D) else (size / 8D, 1D)
+      CoverUtils.clampBBOnAxis(box, slot.getFace1.getAxis, min, max)
     } else box
   }
 
-  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
-    val faces = FacesToSlot.find(slot.f1, slot.f2)
-    faces.add(FacesToSlot.from(slot.f1))
-    faces.add(FacesToSlot.from(slot.f2))
-    if (size >= 4) faces.add(PartSlot.CENTER)
+  override def getShadowedSlots(aSlot: IPartSlot, size: Int): util.Set[IPartSlot] = {
+    val slot = validateSlot(aSlot)
+    val faces = FacesToSlot.find(slot.getFace1, slot.getFace2)
+    faces.add(FacesToSlot.from(slot.getFace1))
+    faces.add(FacesToSlot.from(slot.getFace2))
+    if (size >= 4) faces.add(EnumCenterSlot.CENTER)
     faces
   }
 
-  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[IPartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)

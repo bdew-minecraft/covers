@@ -17,31 +17,27 @@
  * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.bdew.covers.items
+package net.bdew.covers.block
 
-import java.util
-
-import mcmultipart.item.IItemMultipartFactory
-import mcmultipart.microblock.{IMicroMaterial, MicroblockRegistry}
-import mcmultipart.multipart.{IMultipart, MultipartHelper}
+import mcmultipart.MCMultiPart
+import mcmultipart.api.microblock.MicroMaterial
+import mcmultipart.api.multipart.MultipartHelper
 import net.bdew.covers.microblock._
 import net.bdew.covers.microblock.shape.MicroblockShape
 import net.bdew.lib.PimpVanilla._
-import net.bdew.lib.items.BaseItem
+import net.bdew.lib.items.BaseItemBlock
 import net.bdew.lib.nbt.NBT
-import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.{Item, ItemStack}
+import net.minecraft.util._
 import net.minecraft.util.math.{BlockPos, Vec3d}
-import net.minecraft.util.{EnumActionResult, EnumFacing, EnumHand, SoundCategory}
 import net.minecraft.world.World
-import net.minecraftforge.client.model.ModelLoader
 
-object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
+object ItemCover extends BaseItemBlock("cover", BlockCover) {
   setHasSubtypes(true)
 
-  case class Data(shape: MicroblockShape, material: IMicroMaterial, size: Int)
+  case class Data(shape: MicroblockShape, material: MicroMaterial, size: Int)
 
   def getData(stack: ItemStack) = {
     for {
@@ -50,7 +46,7 @@ object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
       materialId <- tag.get[String]("material")
       size <- tag.get[Int]("size")
       shape <- InternalRegistry.shapes.get(shapeId) if shape.validSizes.contains(size)
-      material <- Option(MicroblockRegistry.getMaterial(materialId))
+      material <- Option(MCMultiPart.microMaterialRegistry.getObject(new ResourceLocation(materialId)))
     } yield {
       Data(shape, material, size)
     }
@@ -60,28 +56,31 @@ object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
   def getShape(stack: ItemStack) = getData(stack).getOrElse(sys.error("Missing part data")).shape
   def getSize(stack: ItemStack) = getData(stack).getOrElse(sys.error("Missing part data")).size
 
-  def makeStack(material: IMicroMaterial, shape: MicroblockShape, partSize: Int, stackSize: Int = 1) = {
+  def makeStack(material: MicroMaterial, shape: MicroblockShape, partSize: Int, stackSize: Int = 1) = {
     val stack = new ItemStack(this, stackSize, 0)
-    stack.setTagCompound(NBT("shape" -> shape.name, "material" -> material.getName, "size" -> partSize))
+    stack.setTagCompound(NBT("shape" -> shape.name, "material" -> material.getRegistryName.toString, "size" -> partSize))
     stack
   }
 
   override def getItemStackDisplayName(stack: ItemStack): String =
     getData(stack) map (data => data.shape.getLocalizedName(data.material, data.size)) getOrElse super.getItemStackDisplayName(stack)
 
-  override def getSubItems(item: Item, tab: CreativeTabs, list: util.List[ItemStack]): Unit =
+  override def getSubItems(itemIn: Item, tab: CreativeTabs, list: NonNullList[ItemStack]): Unit =
     for (material <- InternalRegistry.materials.values; shape <- InternalRegistry.shapes.values; size <- shape.validSizes)
       list.add(makeStack(material, shape, size))
 
-  override def createPart(world: World, pos: BlockPos, side: EnumFacing, hit: Vec3d, stack: ItemStack, player: EntityPlayer): IMultipart =
-    getData(stack) map (data => data.shape.createPart(data.shape.defaultSlot, data.size, data.material, world.isRemote)) getOrElse sys.error("Creating part from invalid stack")
-
-  override def onItemUse(stack: ItemStack, player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, side: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult = {
-    if (player.canPlayerEdit(pos, side, stack)) {
-      for (data <- getData(stack); place <- MicroblockLocation.calculate(world, pos, new Vec3d(hitX, hitY, hitZ), side, data.shape, data.size, data.material, world.isRemote)) {
-        if (!world.isRemote) MultipartHelper.addPart(world, place.pos, place.part)
-        stack.stackSize -= 1
-        val sound = place.part.getMicroMaterial.getSound
+  override def onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult = {
+    val stack = player.getHeldItem(hand)
+    if (player.canPlayerEdit(pos, facing, stack) && !stack.isEmpty && stack.getItem == this) {
+      for (data <- getData(stack); place <- MicroblockLocation.calculate(world, pos, new Vec3d(hitX, hitY, hitZ), facing, data.shape, data.size, data.material, world.isRemote)) {
+        if (!world.isRemote) {
+          if (place.intoContainer)
+            MultipartHelper.addPart(world, place.pos, place.slot, place.state, false)
+          else
+            world.setBlockState(place.pos, place.state, 3)
+        }
+        stack.shrink(1)
+        val sound = data.material.getSound(data.material.getDefaultState, world, place.pos, player)
         if (sound != null)
           world.playSound(player, pos, sound.getPlaceSound, SoundCategory.BLOCKS, sound.getVolume, sound.getPitch)
         return EnumActionResult.SUCCESS
@@ -90,9 +89,7 @@ object ItemMicroblock extends BaseItem("PartNew") with IItemMultipartFactory {
     EnumActionResult.PASS
   }
 
-  override def canItemEditBlocks = true
+  override def canPlaceBlockOnSide(worldIn: World, pos: BlockPos, side: EnumFacing, player: EntityPlayer, stack: ItemStack): Boolean = true
 
-  override def registerItemModels(): Unit = {
-    ModelLoader.setCustomModelResourceLocation(this, 0, new ModelResourceLocation("covers:microblock", "inventory"))
-  }
+  override def canItemEditBlocks = true
 }

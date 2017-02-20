@@ -21,22 +21,15 @@ package net.bdew.covers.microblock.shape
 
 import java.util
 
-import mcmultipart.microblock.IMicroMaterial
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.parts.PartCorner
+import mcmultipart.api.slot.{EnumCenterSlot, EnumCornerSlot, IPartSlot}
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils, FacesToSlot}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
-object CornerShape extends MicroblockShape("corner") {
-  override val validSlots = PartSlot.CORNERS.toSet
-  override val defaultSlot = PartSlot.CORNER_NNN
-
-  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartCorner(material, slot, size, client)
-
-  override def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
+object CornerShape extends MicroblockShapeImpl("corner", classOf[EnumCornerSlot], EnumCornerSlot.values().toSet, EnumCornerSlot.CORNER_NNN) {
+  override def isSolid(slot: IPartSlot, size: Int, side: EnumFacing): Boolean = false
 
   private def interval(size: Double, positive: Boolean): (Double, Double) =
     if (positive)
@@ -44,15 +37,15 @@ object CornerShape extends MicroblockShape("corner") {
     else
       (0, size)
 
-  override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
-    require(validSlots.contains(slot))
+  override def getBoundingBox(aSlot: IPartSlot, size: Int): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
     require(validSizes.contains(size))
     val doubleSize = size / 8D
 
     val directions = Map(
-      slot.f1.getAxis -> (slot.f1.getAxisDirection == AxisDirection.POSITIVE),
-      slot.f2.getAxis -> (slot.f2.getAxisDirection == AxisDirection.POSITIVE),
-      slot.f3.getAxis -> (slot.f3.getAxisDirection == AxisDirection.POSITIVE)
+      slot.getFace1.getAxis -> (slot.getFace1.getAxisDirection == AxisDirection.POSITIVE),
+      slot.getFace2.getAxis -> (slot.getFace2.getAxisDirection == AxisDirection.POSITIVE),
+      slot.getFace3.getAxis -> (slot.getFace3.getAxisDirection == AxisDirection.POSITIVE)
     )
 
     val (minX, maxX) = interval(doubleSize, directions(Axis.X))
@@ -69,22 +62,24 @@ object CornerShape extends MicroblockShape("corner") {
     List(new AABBHiddenFaces(min, min, min, max, max, max, AABBHiddenFaces.noFaces))
   }
 
-  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
+  override def exclusionBox(slot: IPartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
 
-  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = {
-    val faces = util.EnumSet.of(
-      FacesToSlot.from(slot.f1),
-      FacesToSlot.from(slot.f2),
-      FacesToSlot.from(slot.f3),
-      FacesToSlot.from(slot.f1, slot.f2),
-      FacesToSlot.from(slot.f2, slot.f3),
-      FacesToSlot.from(slot.f3, slot.f1)
-    )
-    if (size >= 4) faces.add(PartSlot.CENTER)
+  override def getShadowedSlots(aSlot: IPartSlot, size: Int): util.Set[IPartSlot] = {
+    import scala.collection.JavaConverters._
+    val slot = validateSlot(aSlot)
+    val faces = Set(
+      FacesToSlot.from(slot.getFace1),
+      FacesToSlot.from(slot.getFace2),
+      FacesToSlot.from(slot.getFace3),
+      FacesToSlot.from(slot.getFace1, slot.getFace2),
+      FacesToSlot.from(slot.getFace2, slot.getFace3),
+      FacesToSlot.from(slot.getFace3, slot.getFace1)
+    ).asJava
+    if (size >= 4) faces.add(EnumCenterSlot.CENTER)
     faces
   }
 
-  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[IPartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
     val y = CoverUtils.getAxis(vec, neighbours.top.getAxis, neighbours.top.getAxisDirection == AxisDirection.POSITIVE)

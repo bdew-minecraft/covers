@@ -20,20 +20,23 @@
 package net.bdew.covers.microblock.shape
 
 import java.util
+import java.util.Collections
 
-import mcmultipart.microblock._
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.parts.BasePart
+import mcmultipart.api.microblock.{MicroMaterial, MicroblockType}
+import mcmultipart.api.slot.IPartSlot
+import net.bdew.covers.block.{BlockCover, CoverInfo, CoverInfoProperty, ItemCover}
 import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Misc
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util._
-import net.minecraft.util.math.{AxisAlignedBB, BlockPos, RayTraceResult, Vec3d}
-import net.minecraft.world.World
+import net.minecraft.util.math.{AxisAlignedBB, RayTraceResult, Vec3d}
+import net.minecraft.world.{IBlockAccess, World}
+import net.minecraftforge.common.property.IExtendedBlockState
 
-abstract class MicroblockShape(val name: String) extends MicroblockClass {
+abstract class MicroblockShape(val name: String) extends MicroblockType {
+  setRegistryName("covers", name)
+
   /**
     * @return Set of valid sizes, shouldn't include blockSize
     */
@@ -42,12 +45,12 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
   /**
     * @return Set of valid slots that parts of this shape should occupy
     */
-  def validSlots: Set[PartSlot]
+  def validSlots: Set[IPartSlot]
 
   /**
     * @return default slot for this shape, used for item form
     */
-  def defaultSlot: PartSlot
+  def defaultSlot: IPartSlot
 
   /**
     * Check if a side is fully solid
@@ -56,17 +59,17 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
     * @param side side being checked
     * @return true if the given part makes the side fully solid
     */
-  def isSolid(slot: PartSlot, size: Int, side: EnumFacing): Boolean = false
+  def isSolid(slot: IPartSlot, size: Int, side: EnumFacing): Boolean = false
 
   /**
     * @return Bounding box for the whole part of the given size in the given slot
     */
-  def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB
+  def getBoundingBox(slot: IPartSlot, size: Int): AxisAlignedBB
 
   /**
     * @return List of bounding boxes that form the part of the given size in the given slot
     */
-  def getPartBoxes(slot: PartSlot, size: Int): List[AABBHiddenFaces] = List(AABBHiddenFaces.withHiddenFaces(getBoundingBox(slot, size)))
+  def getPartBoxes(slot: IPartSlot, size: Int): List[AABBHiddenFaces] = List(AABBHiddenFaces.withHiddenFaces(getBoundingBox(slot, size)))
 
   /**
     * @return List of bounding boxes that form the part of the given size in the given slot
@@ -80,21 +83,21 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
     * @param side the side that was clicked
     * @return slot that the new part should take or None if the click shouldn't place a new part
     */
-  def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot]
+  def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[IPartSlot]
 
   /**
     * @param slot main slot of the part
     * @param size size of the part
-    * @return EnumSet of the slots this part actually occupies
+    * @return Set of the slots this part actually occupies
     */
-  def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(slot)
+  def getSlotMask(slot: IPartSlot, size: Int): util.Set[IPartSlot] = Collections.singleton(slot)
 
   /**
     * @param slot main slot of the part
     * @param size size of the part
-    * @return EnumSet of the slots this part prevents other parts from taking
+    * @return Set of the slots this part prevents other parts from taking
     */
-  def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot]
+  def getShadowedSlots(slot: IPartSlot, size: Int): util.Set[IPartSlot]
 
   /**
     * Describe how this shape converts to smaller shapes (e.g. Face -> Edge)
@@ -136,33 +139,54 @@ abstract class MicroblockShape(val name: String) extends MicroblockClass {
     */
   def ghost(size: Int): Option[(MicroblockShape, Int)] = None
 
-  /**
-    * @return a new part with the provided data
-    */
-  def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean): BasePart
+  def createBlockState(slot: IPartSlot, material: MicroMaterial, size: Int) =
+    BlockCover.getDefaultState.asInstanceOf[IExtendedBlockState].withProperty(CoverInfoProperty, CoverInfo(this, slot, material, size))
 
   /**
     * Remove the area covered by this part from a bounding box
     *
     * @return new bounding box, that doesn't include this part
     */
-  def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB
+  def exclusionBox(slot: IPartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB
 
-  // ==== MicroblockClass ====
+  //   ==== MicroblockType ====
 
-  override def getType: String = "covers:" + name
+  override val getMaxSize = validSizes.max
 
-  override def getLocalizedName(material: IMicroMaterial, size: Int): String =
+  override def getSize(stack: ItemStack): Int = {
+    if (stack.getItem == ItemCover)
+      ItemCover.getSize(stack)
+    else -1
+  }
+
+  override def getMaterial(stack: ItemStack): MicroMaterial =
+    if (stack.getItem == ItemCover)
+      ItemCover.getMaterial(stack)
+    else null
+
+  override def getLocalizedName(material: MicroMaterial, size: Int): String =
     Misc.toLocalF("bdew.covers." + name + "." + size, material.getLocalizedName)
 
-  override def createStack(material: IMicroMaterial, size: Int, stackSize: Int): ItemStack =
-    ItemMicroblock.makeStack(material, this, size, stackSize)
+  override def createDrops(material: MicroMaterial, size: Int): util.List[ItemStack] =
+    Collections.singletonList(ItemCover.makeStack(material, this, size))
 
-  override def getPlacement(world: World, pos: BlockPos, material: IMicroMaterial, size: Int, hit: RayTraceResult, player: EntityPlayer): MicroblockPlacement =
-    throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
+  override def createStack(material: MicroMaterial, size: Int): ItemStack =
+    ItemCover.makeStack(material, this, size)
 
-  override def getPlacementGrid: IMicroblockPlacementGrid =
-    throw new UnsupportedOperationException("This part of the API is not implemented yet") // FIXME
+  override def drawPlacement(world: IBlockAccess, player: EntityPlayer, stack: ItemStack, hit: RayTraceResult): Unit = ???
 
-  override def create(client: Boolean): BasePart = createPart(null, 0, null, false)
+  override def place(world: World, player: EntityPlayer, stack: ItemStack, hit: RayTraceResult): Boolean = ???
+}
+
+abstract class MicroblockShapeImpl[T <: IPartSlot](name: String, slotClass: Class[T], validSlots1: Set[T], val defaultSlot1: T) extends MicroblockShape(name) {
+  override def validSlots: Set[IPartSlot] = validSlots1.toSet[IPartSlot] // why the fuck are scala sets invariant?..
+  override def defaultSlot: IPartSlot = defaultSlot1
+
+  def validateSlot(s: IPartSlot): T = {
+    require(validSlots.contains(s))
+    if (slotClass.isInstance(s))
+      slotClass.cast(s)
+    else
+      sys.error(s"Invalid slot for shape $name: $s (${ s.getClass.getName })")
+  }
 }

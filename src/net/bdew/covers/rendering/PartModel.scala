@@ -20,15 +20,14 @@
 package net.bdew.covers.rendering
 
 import java.util
+import java.util.Collections
 import javax.vecmath.Matrix4f
 
 import com.google.common.base.{Function, Optional}
 import com.google.common.collect.ImmutableList
-import mcmultipart.client.microblock.MicroblockRegistryClient
-import mcmultipart.microblock.{IMicroMaterial, Microblock}
-import net.bdew.covers.items.ItemMicroblock
-import net.bdew.covers.microblock.{BoundsProperty, MicroblockShapeProperty}
-import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
+import mcmultipart.api.microblock.MicroMaterial
+import net.bdew.covers.block.{CoverInfoProperty, ItemCover}
+import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
 import net.bdew.lib.render.models.{SimpleBakedModelBuilder, SmartItemModel}
 import net.minecraft.block.state.IBlockState
@@ -38,7 +37,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
-import net.minecraftforge.client.ForgeHooksClient
+import net.minecraftforge.client.{ForgeHooksClient, MinecraftForgeClient}
 import net.minecraftforge.client.model._
 import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 import net.minecraftforge.common.property.IExtendedBlockState
@@ -62,19 +61,24 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
 
   override def getQuads(state: IBlockState, face: EnumFacing, rand: Long): util.List[BakedQuad] = {
     val ex = state.asInstanceOf[IExtendedBlockState]
-    val material = ex.getValue(Microblock.PROPERTY_MATERIAL)
-    val size = ex.getValue(Microblock.PROPERTY_SIZE)
-    val slot = ex.getValue(Microblock.PROPERTY_SLOT)
-    val shape = ex.getValue(MicroblockShapeProperty)
-    val bounds = ex.getValue(BoundsProperty)
-    val boxes = CoverUtils.limitBoxes(shape.getPartBoxes(slot, size), bounds)
-    generateQuads(material, boxes, face, rand)
+    val data = ex.getValue(CoverInfoProperty)
+    // fixme
+    //    val bounds = ex.getValue(BoundsProperty)
+    //    val boxes = CoverUtils.limitBoxes(shape.getPartBoxes(slot, size), bounds)
+    if (data != null) {
+      if (data.material.canRenderInLayer(data.material.getDefaultState, MinecraftForgeClient.getRenderLayer)) {
+        val boxes = data.shape.getPartBoxes(data.slot, data.size)
+        generateQuads(data.material, boxes, face, rand)
+      } else Collections.emptyList()
+    } else {
+      missing.getQuads(state, face, rand)
+    }
   }
 
   override def getItemQuads(item: ItemStack, face: EnumFacing, mode: TransformType, rand: Long): util.List[BakedQuad] = {
-    ItemMicroblock.getData(item) map { data =>
+    ItemCover.getData(item) map { data =>
       val list = new util.ArrayList[BakedQuad]()
-      for (layer <- BlockRenderLayer.values().toList.filter(data.material.canRenderInLayer)) {
+      for (layer <- BlockRenderLayer.values().toList.filter(l => data.material.canRenderInLayer(data.material.getDefaultState, l))) {
         ForgeHooksClient.setRenderLayer(layer)
         list.addAll(generateQuads(data.material, data.shape.getItemBoxes(data.size), face, rand))
       }
@@ -83,21 +87,8 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
     } getOrElse missing.getQuads(null, face, rand)
   }
 
-  def generateQuads(material: IMicroMaterial, boxes: List[AABBHiddenFaces], face: EnumFacing, rand: Long): util.List[BakedQuad] = {
-    val provider = MicroblockRegistryClient.getModelProviderFor(material)
-
-    if (boxes.isEmpty || provider == null) {
-      ImmutableList.of()
-    } else if (boxes.size == 1) {
-      provider.provideMicroModel(material, boxes.head, boxes.head.hidden).getQuads(null, face, rand)
-    } else if (provider.isInstanceOf[MicroblockModelProvider]) {
-      provider.asInstanceOf[MicroblockModelProvider].provideMicroModelAdvanced(boxes).getQuads(null, face, rand)
-    } else {
-      val list = new util.LinkedList[BakedQuad]()
-      for (box <- boxes)
-        list.addAll(provider.provideMicroModel(material, boxes.head, boxes.head.hidden).getQuads(null, face, rand))
-      list
-    }
+  def generateQuads(material: MicroMaterial, boxes: List[AABBHiddenFaces], face: EnumFacing, rand: Long): util.List[BakedQuad] = {
+    MicroblockModelHelper.getModel(material.getDefaultState, boxes, TRSRTransformation.identity()).getQuads(null, face, rand)
   }
 
   override def handlePerspective(cameraTransformType: TransformType): Pair[_ <: IBakedModel, Matrix4f] = {

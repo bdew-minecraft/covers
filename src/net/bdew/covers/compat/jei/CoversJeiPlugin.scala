@@ -22,9 +22,9 @@ package net.bdew.covers.compat.jei
 import mezz.jei.api.ISubtypeRegistry.ISubtypeInterpreter
 import mezz.jei.api._
 import net.bdew.covers.Covers
+import net.bdew.covers.block.ItemCover
 import net.bdew.covers.config.Config
 import net.bdew.covers.config.Config.ShowMode
-import net.bdew.covers.items.ItemMicroblock
 import net.bdew.covers.microblock.InternalRegistry
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
@@ -33,9 +33,9 @@ import net.minecraftforge.oredict.OreDictionary
 @JEIPlugin
 class CoversJeiPlugin extends BlankModPlugin {
   override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry): Unit = {
-    subtypeRegistry.registerSubtypeInterpreter(ItemMicroblock, new ISubtypeInterpreter {
+    subtypeRegistry.registerSubtypeInterpreter(ItemCover, new ISubtypeInterpreter {
       override def getSubtypeInfo(itemStack: ItemStack): String =
-        ItemMicroblock.getData(itemStack).map(d => "%s:%s:%d".format(d.material.getName, d.shape.name, d.size)).orNull
+        ItemCover.getData(itemStack).map(d => "%s/%s/%d".format(d.material.getRegistryName, d.shape.name, d.size)).orNull
     })
   }
 
@@ -48,14 +48,14 @@ class CoversJeiPlugin extends BlankModPlugin {
 
     if (Config.jeiShowMode == ShowMode.MINIMAL) {
       for {
-        material <- InternalRegistry.materials.values if material.getDefaultMaterialState != Blocks.STONE.getDefaultState
+        material <- InternalRegistry.materials.values if material.getDefaultState != Blocks.STONE.getDefaultState
         shape <- InternalRegistry.shapes.values
         size <- shape.validSizes
       } {
-        registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(ItemMicroblock.makeStack(material, shape, size))
+        registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(ItemCover.makeStack(material, shape, size))
       }
     } else if (Config.jeiShowMode == ShowMode.NONE) {
-      registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(new ItemStack(ItemMicroblock, 1, OreDictionary.WILDCARD_VALUE))
+      registry.getJeiHelpers.getIngredientBlacklist.addIngredientToBlacklist(new ItemStack(ItemCover, 1, OreDictionary.WILDCARD_VALUE))
     }
   }
 

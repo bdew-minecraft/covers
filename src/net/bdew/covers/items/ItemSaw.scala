@@ -19,11 +19,8 @@
 
 package net.bdew.covers.items
 
-import mcmultipart.item.IItemSaw
 import net.bdew.lib.items.BaseItem
-import net.minecraft.item.ItemStack
 
-object ItemSaw extends BaseItem("Saw") with IItemSaw {
+object ItemSaw extends BaseItem("saw") {
   setMaxStackSize(1)
-  override def getSawStrength(stack: ItemStack): Int = 4
 }

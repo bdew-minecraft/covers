@@ -19,26 +19,23 @@
 
 package net.bdew.covers.misc
 
-import java.util
-
-import mcmultipart.multipart.PartSlot
+import mcmultipart.api.slot.{EnumCornerSlot, EnumEdgeSlot, EnumFaceSlot, IPartSlot}
 import net.minecraft.util.EnumFacing
 
 object FacesToSlot {
-  val map = (PartSlot.values() map { slot =>
-    (Set() ++ Option(slot.f1) ++ Option(slot.f2) ++ Option(slot.f3)) -> slot
-  }).toMap
+  val map: Map[Set[EnumFacing], IPartSlot] = (
+    EnumFaceSlot.values().toList.map(x => Set(x.getFacing) -> x) ++
+      EnumEdgeSlot.values().toList.map(x => Set(x.getFace1, x.getFace2) -> x) ++
+      EnumCornerSlot.values().toList.map(x => Set(x.getFace1, x.getFace2, x.getFace3) -> x)
+    ).toMap
 
   val inverted = map.map(_.swap)
 
   def from(faces: EnumFacing*) = map(faces.toSet)
 
   def find(faces: EnumFacing*) = {
+    import scala.collection.JavaConverters._
     val faceSet = faces.toSet
-    val found = map.filterKeys(_.intersect(faceSet) == faceSet).values.toSeq
-    if (found.isEmpty)
-      util.EnumSet.noneOf(classOf[PartSlot])
-    else
-      util.EnumSet.of(found.head, found.tail: _*)
+    map.filterKeys(_.intersect(faceSet) == faceSet).values.toSet.asJava
   }
 }

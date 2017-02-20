@@ -19,8 +19,9 @@
 
 package net.bdew.covers.misc
 
-import net.bdew.covers.microblock.parts.PartImplementation
-import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, GhostFaceShape, HollowFaceShape}
+import mcmultipart.MCMultiPart
+import net.bdew.covers.block.CoverInfo
+import net.bdew.covers.microblock.shape._
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.Axis
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
@@ -67,26 +68,26 @@ object CoverUtils {
       if (axis == Axis.Z && box.maxZ > max) max else box.maxZ
     )
 
-  val boundsPriorities = Map(
+  val boundsPriorities = Map[MicroblockShape, Int](
     FaceShape -> 2,
     HollowFaceShape -> 2,
     GhostFaceShape -> 2,
     EdgeShape -> 1
   ).withDefaultValue(-1)
 
-  def shouldPartAffectBounds(part: PartImplementation, otherPart: PartImplementation): Boolean = {
-    if (!part.getBounds.intersectsWith(otherPart.getBounds)) return false
+  def shouldPartAffectBounds(part: CoverInfo, otherPart: CoverInfo): Boolean = {
+    if (!part.shape.getBoundingBox(part.slot, part.size).intersectsWith(otherPart.shape.getBoundingBox(otherPart.slot, otherPart.size))) return false
     val p1 = boundsPriorities(part.shape)
     val p2 = boundsPriorities(otherPart.shape)
     if (p1 == -1 || p2 == -1 || p2 < p1)
       false
     else if (p2 > p1)
       true
-    else if (otherPart.getSize > part.getSize) // Same priority - compare size
+    else if (otherPart.size > part.size) // Same priority - compare size
       true
-    else if (otherPart.getSize < part.getSize)
+    else if (otherPart.size < part.size)
       false
-    else otherPart.getSlot.ordinal() > part.getSlot.ordinal() // Same priority and size
+    else MCMultiPart.slotRegistry.getId(otherPart.slot) > MCMultiPart.slotRegistry.getId(part.slot) // Same priority and size
   }
 
   def limitBoxes(boxes: List[AABBHiddenFaces], bounds: AxisAlignedBB): List[AABBHiddenFaces] = {

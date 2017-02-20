@@ -23,8 +23,9 @@ import java.util
 import java.util.Collections
 
 import mezz.jei.api.recipe._
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
-import net.bdew.covers.microblock.InternalRegistry
+import net.bdew.covers.block.ItemCover
+import net.bdew.covers.items.ItemSaw
+import net.bdew.covers.microblock.{InternalRegistry, MicroMaterialHelper}
 import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, MicroblockShape}
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
@@ -63,17 +64,22 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
   val ghostReverse = makeReverse((shape, size) => shape.ghost(size))
 
   override def getRecipeCategoryUids[V](focus: IFocus[V]): util.List[String] = {
-    if (focus.getMode == IFocus.Mode.NONE) return Collections.singletonList(VanillaRecipeCategoryUid.CRAFTING)
+    if (focus.getMode == null) return Collections.singletonList(VanillaRecipeCategoryUid.CRAFTING)
     focus.getValue match {
       case x: ItemStack if (
-        x.getItem == ItemMicroblock
+        x.getItem == ItemCover
           || (x.getItem == ItemSaw && focus.getMode == IFocus.Mode.INPUT)
           || Option(Block.getBlockFromItem(x.getItem)).exists(block => InternalRegistry.isValidMaterial(block, x.getItemDamage))
         ) => Collections.singletonList(VanillaRecipeCategoryUid.CRAFTING)
-      case null if focus.getMode == IFocus.Mode.NONE => Collections.singletonList(VanillaRecipeCategoryUid.CRAFTING)
       case _ => Collections.emptyList()
     }
   }
+
+  override def getRecipeWrappers[T <: IRecipeWrapper](recipeCategory: IRecipeCategory[T]): util.List[T] =
+    if (recipeCategory.getUid == VanillaRecipeCategoryUid.CRAFTING)
+      getRecipes(null).asInstanceOf[util.List[T]]
+    else
+      Collections.emptyList()
 
   override def getRecipeWrappers[T <: IRecipeWrapper, V](recipeCategory: IRecipeCategory[T], focus: IFocus[V]): util.List[T] =
     if (recipeCategory.getUid == VanillaRecipeCategoryUid.CRAFTING)
@@ -82,15 +88,15 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
       Collections.emptyList()
 
   def getRecipes(focus: IFocus[_]): util.List[_ <: MicroblockRecipe] = {
-    if (focus.getMode == IFocus.Mode.NONE) return allRecipes
+    if (focus == null) return allRecipes
     if (!focus.getValue.isInstanceOf[ItemStack]) return Collections.emptyList()
 
     val stack = focus.getValue.asInstanceOf[ItemStack]
 
     if (stack.getItem == ItemSaw && focus.getMode == IFocus.Mode.INPUT) return sawRecipes
 
-    if (stack.getItem == ItemMicroblock) {
-      ItemMicroblock.getData(stack) map { data =>
+    if (stack.getItem == ItemCover) {
+      ItemCover.getData(stack) filter (x=>MicroMaterialHelper.hasItemStack(x.material)) map { data =>
         if (focus.getMode == IFocus.Mode.INPUT) {
           var list = List.empty[MicroblockRecipe]
 
@@ -140,7 +146,7 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
       } getOrElse Collections.emptyList()
     } else {
       Option(Block.getBlockFromItem(stack.getItem)) flatMap {
-        block => InternalRegistry.getMaterial(block, stack.getItemDamage) map { material =>
+        block => InternalRegistry.getMaterial(block, stack.getItemDamage) filter (MicroMaterialHelper.hasItemStack) map { material =>
           if (focus.getMode == IFocus.Mode.INPUT)
             Collections.singletonList(new RecipeCutBlock(material))
           else

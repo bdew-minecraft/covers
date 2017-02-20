@@ -19,7 +19,6 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.transition.RecipeConvert
 import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.oredict.RecipeSorter
 
@@ -28,7 +27,7 @@ object Recipes {
     GameRegistry.addRecipe(recipe)
     RecipeSorter.register("bdew.covers:" + recipe.getClass.getSimpleName, recipe.getClass, RecipeSorter.Category.SHAPED, "")
   }
-  
+
   def register(): Unit = {
     regRecipe(RecipeSplitBlock)
     regRecipe(RecipeSplitPart)
@@ -38,6 +37,5 @@ object Recipes {
     regRecipe(RecipeTransformPart)
     regRecipe(RecipeHollowPart)
     regRecipe(RecipeGhostPart)
-    regRecipe(RecipeConvert)
   }
 }

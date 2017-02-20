@@ -20,32 +20,26 @@
 package net.bdew.covers.microblock.shape
 
 import java.util
+import java.util.Collections
 
-import mcmultipart.microblock.IMicroMaterial
-import mcmultipart.multipart.PartSlot
-import net.bdew.covers.microblock.parts.PartCenter
+import mcmultipart.api.slot.{EnumCenterSlot, EnumFaceSlot, IPartSlot}
 import net.bdew.covers.misc.{AABBHiddenFaces, CoverUtils}
 import net.bdew.lib.block.BlockFace
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumFacing.{Axis, AxisDirection}
 import net.minecraft.util.math.{AxisAlignedBB, Vec3d}
 
-object CenterShape extends MicroblockShape("center") {
-  override val validSlots = Set(PartSlot.NORTH, PartSlot.UP, PartSlot.EAST)
-  override val defaultSlot = PartSlot.NORTH
-
-  override def createPart(slot: PartSlot, size: Int, material: IMicroMaterial, client: Boolean) = new PartCenter(material, slot, size, client)
-
-  override def getBoundingBox(slot: PartSlot, size: Int): AxisAlignedBB = {
-    require(validSlots.contains(slot))
+object CenterShape extends MicroblockShapeImpl("center", classOf[EnumFaceSlot], Set(EnumFaceSlot.NORTH, EnumFaceSlot.UP, EnumFaceSlot.EAST), EnumFaceSlot.NORTH) {
+  override def getBoundingBox(aSlot: IPartSlot, size: Int): AxisAlignedBB = {
+    val slot = validateSlot(aSlot)
     require(validSizes.contains(size))
 
     val offset = size / 16D
 
     slot match {
-      case PartSlot.EAST => new AxisAlignedBB(0, 0.5 - offset, 0.5 - offset, 1, 0.5 + offset, 0.5 + offset)
-      case PartSlot.UP => new AxisAlignedBB(0.5 - offset, 0, 0.5 - offset, 0.5 + offset, 1, 0.5 + offset)
-      case PartSlot.NORTH => new AxisAlignedBB(0.5 - offset, 0.5 - offset, 0, 0.5 + offset, 0.5 + offset, 1)
+      case EnumFaceSlot.EAST => new AxisAlignedBB(0, 0.5 - offset, 0.5 - offset, 1, 0.5 + offset, 0.5 + offset)
+      case EnumFaceSlot.UP => new AxisAlignedBB(0.5 - offset, 0, 0.5 - offset, 0.5 + offset, 1, 0.5 + offset)
+      case EnumFaceSlot.NORTH => new AxisAlignedBB(0.5 - offset, 0.5 - offset, 0, 0.5 + offset, 0.5 + offset, 1)
       case _ => sys.error("This should be unreachable")
     }
   }
@@ -56,11 +50,11 @@ object CenterShape extends MicroblockShape("center") {
     List(new AABBHiddenFaces(0.5 - offset, 0, 0.5 - offset, 0.5 + offset, 1, 0.5 + offset, AABBHiddenFaces.noFaces))
   }
 
-  override def exclusionBox(slot: PartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
+  override def exclusionBox(slot: IPartSlot, size: Int, box: AxisAlignedBB, sides: Set[EnumFacing]): AxisAlignedBB = box
 
-  override def getShadowedSlots(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.noneOf(classOf[PartSlot])
+  override def getShadowedSlots(slot: IPartSlot, size: Int): util.Set[IPartSlot] = Collections.emptySet()
 
-  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[PartSlot] = {
+  override def getSlotFromHit(vec: Vec3d, side: EnumFacing): Option[IPartSlot] = {
     val neighbours = BlockFace.neighbourFaces(side)
 
     val x = CoverUtils.getAxis(vec, neighbours.right.getAxis, neighbours.right.getAxisDirection == AxisDirection.POSITIVE)
@@ -68,14 +62,14 @@ object CenterShape extends MicroblockShape("center") {
 
     if (x > 0.25 && x < 0.75 && y > 0.25 && y < 0.75) {
       side.getAxis match {
-        case Axis.X => Some(PartSlot.EAST)
-        case Axis.Y => Some(PartSlot.UP)
-        case Axis.Z => Some(PartSlot.NORTH)
+        case Axis.X => Some(EnumFaceSlot.EAST)
+        case Axis.Y => Some(EnumFaceSlot.UP)
+        case Axis.Z => Some(EnumFaceSlot.NORTH)
       }
     } else None
   }
 
-  override def getSlotMask(slot: PartSlot, size: Int): util.EnumSet[PartSlot] = util.EnumSet.of(PartSlot.CENTER)
+  override def getSlotMask(slot: IPartSlot, size: Int): util.Set[IPartSlot] = Collections.singleton(EnumCenterSlot.CENTER)
 
   override def transform(size: Int): Option[(MicroblockShape, Int)] = Some(EdgeShape, size)
 }

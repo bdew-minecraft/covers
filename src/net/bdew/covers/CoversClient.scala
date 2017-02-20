@@ -19,19 +19,22 @@
 
 package net.bdew.covers
 
+import net.bdew.covers.block.ItemCover
 import net.bdew.covers.config.Config
-import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockColorProvider, MicroblockModelProvider, PartPlacementRender}
-import net.minecraftforge.client.model.ModelLoaderRegistry
+import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockColorProvider, PartPlacementRender}
+import net.minecraft.client.renderer.block.model.ModelResourceLocation
+import net.minecraftforge.client.model.{ModelLoader, ModelLoaderRegistry}
 
 object CoversClient {
   def preInit(): Unit = {
     ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
+    //fixme: is this still needed?
+//    ModelLoader.setCustomModelResourceLocation(ItemCover, 0, new ModelResourceLocation("covers:cover", "inventory"))
     if (Config.showPlacementPreview)
       PartPlacementRender.init()
   }
 
   def postInit(): Unit = {
-    MicroblockModelProvider.registerProviders()
     MicroblockColorProvider.register()
   }
 }

@@ -19,16 +19,16 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.items.ItemMicroblock
+import net.bdew.covers.block.ItemCover
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
 object RecipeTransformPart extends MicroblockRecipe {
   override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
-      part <- inv.matchItem(ItemMicroblock).first() if inv.allMatched
-      data <- ItemMicroblock.getData(part.stack)
+      part <- inv.matchItem(ItemCover).first() if inv.allMatched
+      data <- ItemCover.getData(part.stack)
       (newShape, newSize) <- data.shape.transform(data.size)
-    } yield ItemMicroblock.makeStack(data.material, newShape, newSize)
+    } yield ItemCover.makeStack(data.material, newShape, newSize)
   }
 }

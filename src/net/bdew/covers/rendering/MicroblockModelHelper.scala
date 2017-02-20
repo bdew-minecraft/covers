@@ -19,37 +19,21 @@
 
 package net.bdew.covers.rendering
 
-import java.util
-
-import mcmultipart.client.microblock.{IMicroModelProvider, MicroblockRegistryClient}
-import mcmultipart.microblock.IMicroMaterial
 import net.bdew.covers.config.Config
-import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.misc.AABBHiddenFaces
 import net.bdew.lib.Client
 import net.bdew.lib.render.Unpacker
 import net.bdew.lib.render.models.{ModelUtils, SimpleBakedModelBuilder}
 import net.bdew.lib.render.primitive.TVertex
-import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.{BlockRenderLayer, EnumFacing}
 import net.minecraftforge.client.MinecraftForgeClient
-import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
+import net.minecraftforge.common.model.IModelState
 
-class MicroblockModelProvider(material: IMicroMaterial) extends IMicroModelProvider {
-  val blockState = Block.getBlockFromItem(material.getItem.getItem).getStateFromMeta(material.getItem.getItemDamage)
-
-  override def provideMicroModel(material: IMicroMaterial, bounds: AxisAlignedBB, hiddenFaces: util.EnumSet[EnumFacing]): IBakedModel =
-    MicroblockModelProvider.getModel(blockState, List(AABBHiddenFaces.withHiddenFaces(bounds, hiddenFaces)), TRSRTransformation.identity())
-
-  def provideMicroModelAdvanced(boxes: List[AABBHiddenFaces]): IBakedModel =
-    MicroblockModelProvider.getModel(blockState, boxes, TRSRTransformation.identity())
-}
-
-object MicroblockModelProvider {
+object MicroblockModelHelper {
   val cache = new Cache[(IBlockState, List[AABBHiddenFaces], IModelState, BlockRenderLayer), IBakedModel](Config.modelCacheSize, { case (blockState, boxes, state, layer) =>
     val base = Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(blockState)
     val unpacker = new Unpacker(DefaultVertexFormats.ITEM)
@@ -137,10 +121,5 @@ object MicroblockModelProvider {
     }
 
     TVertex(x, y, z, u, v)
-  }
-
-  def registerProviders(): Unit = {
-    for (material <- InternalRegistry.materials.values)
-      MicroblockRegistryClient.registerMaterialModelProvider(material, new MicroblockModelProvider(material))
   }
 }

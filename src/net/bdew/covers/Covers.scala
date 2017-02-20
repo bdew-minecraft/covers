@@ -21,9 +21,8 @@ package net.bdew.covers
 
 import java.io.File
 
-import net.bdew.covers.config.{Config, Items, TuningLoader}
+import net.bdew.covers.config.{Blocks, Config, Items, TuningLoader}
 import net.bdew.covers.recipes.{RecipeSplitBlock, Recipes}
-import net.bdew.covers.transition.OldPartConverter
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.Mod.EventHandler
@@ -53,7 +52,7 @@ object Covers {
     configDir = new File(event.getModConfigurationDirectory, "SimpleCovers")
     TuningLoader.loadConfigFiles()
     Items.load()
-    OldPartConverter.register()
+    Blocks.load()
     if (event.getSide.isClient) Config.load(new File(configDir, "client.config"))
     if (event.getSide == Side.CLIENT) CoversClient.preInit()
   }

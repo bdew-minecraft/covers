@@ -19,7 +19,8 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
+import net.bdew.covers.block.ItemCover
+import net.bdew.covers.items.ItemSaw
 import net.bdew.covers.microblock.InternalRegistry
 import net.bdew.covers.microblock.shape.FaceShape
 import net.bdew.lib.crafting.RecipeMatcher
@@ -33,6 +34,6 @@ object RecipeSplitBlock extends MicroblockRecipe {
       block <- inv.matchItem(_.isInstanceOf[ItemBlock]).and(saw.matchBelow).first() if inv.allMatched
       blockObj <- Option(Block.getBlockFromItem(block.stack.getItem))
       material <- InternalRegistry.getMaterial(blockObj, block.stack.getItemDamage)
-    } yield ItemMicroblock.makeStack(material, FaceShape, 4, 2)
+    } yield ItemCover.makeStack(material, FaceShape, 4, 2)
   }
 }

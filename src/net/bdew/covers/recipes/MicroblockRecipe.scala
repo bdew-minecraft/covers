@@ -19,11 +19,13 @@
 
 package net.bdew.covers.recipes
 
-import net.bdew.covers.items.{ItemMicroblock, ItemSaw}
+import net.bdew.covers.block.ItemCover
+import net.bdew.covers.items.ItemSaw
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
+import net.minecraft.util.NonNullList
 import net.minecraft.world.World
 
 abstract class MicroblockRecipe extends IRecipe {
@@ -36,17 +38,17 @@ abstract class MicroblockRecipe extends IRecipe {
 
   override def getCraftingResult(inv: InventoryCrafting): ItemStack = verifyAndCreateResult(new RecipeMatcher(inv)).getOrElse(getRecipeOutput)
 
-  override def getRemainingItems(inv: InventoryCrafting): Array[ItemStack] = {
-    val res = new Array[ItemStack](inv.getSizeInventory)
-    for (i <- res.indices; stack <- Option(inv.getStackInSlot(i))) {
+  override def getRemainingItems(inv: InventoryCrafting): NonNullList[ItemStack] = {
+    val res = NonNullList.withSize(inv.getSizeInventory, ItemStack.EMPTY)
+    for (i <- 0 until inv.getSizeInventory; stack <- Option(inv.getStackInSlot(i)) if !stack.isEmpty) {
       if (stack.getItem == ItemSaw) {
         val newStack = stack.copy()
-        newStack.stackSize = 1
-        res(i) = newStack
+        newStack.setCount(1)
+        res.set(i, newStack)
       }
     }
     res
   }
 
-  override def getRecipeOutput: ItemStack = new ItemStack(ItemMicroblock)
+  override def getRecipeOutput: ItemStack = new ItemStack(ItemCover)
 }

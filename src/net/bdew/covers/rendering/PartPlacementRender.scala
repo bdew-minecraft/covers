@@ -21,8 +21,7 @@ package net.bdew.covers.rendering
 
 import java.util
 
-import mcmultipart.client.microblock.MicroblockRegistryClient
-import net.bdew.covers.items.ItemMicroblock
+import net.bdew.covers.block.{BlockCover, ItemCover}
 import net.bdew.covers.microblock.MicroblockLocation
 import net.bdew.lib.Client
 import net.bdew.lib.render.models.ModelUtils
@@ -48,8 +47,8 @@ object PartPlacementRender {
     for {
       player <- Option(Client.player)
       world <- Option(Client.world)
-      stack <- Option(player.inventory.getCurrentItem) if stack.getItem == ItemMicroblock
-      data <- ItemMicroblock.getData(stack)
+      stack <- Option(player.inventory.getCurrentItem) if stack.getItem == ItemCover
+      data <- ItemCover.getData(stack)
       place <- MicroblockLocation.calculate(world, player.rayTrace(Client.minecraft.playerController.getBlockReachDistance, ev.getPartialTicks), data.shape, data.size, data.material, true)
     } {
       val px = player.lastTickPosX + (player.posX - player.lastTickPosX) * ev.getPartialTicks
@@ -62,21 +61,17 @@ object PartPlacementRender {
       GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
       GL11.glEnable(GL11.GL_BLEND)
 
-      val provider = MicroblockRegistryClient.getModelProviderFor(data.material)
-
-      val colorizer = new QuadColorHelper(data.material.getDefaultMaterialState, Client.world, place.pos)
+      val colorizer = new QuadColorHelper(data.material.getDefaultState, Client.world, place.pos)
 
       val T = Tessellator.getInstance()
       val B = T.getBuffer
       B.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)
       val consumer = new VertexBufferConsumer(B)
 
-      BlockRenderLayer.values() filter data.material.canRenderInLayer foreach { layer =>
+      BlockRenderLayer.values() filter (l => data.material.canRenderInLayer(data.material.getDefaultState, l)) foreach { layer =>
         ForgeHooksClient.setRenderLayer(layer)
         colorizer.colorizeQuads(
-          place.part.shape.getPartBoxes(place.part.getSlot, place.part.getSize) flatMap { bb =>
-            ModelUtils.getAllQuads(provider.provideMicroModel(place.part.getMicroMaterial, bb, bb.hidden), null)
-          }
+          ModelUtils.getAllQuads(Client.minecraft.getBlockRendererDispatcher.getBlockModelShapes.getModelForState(BlockCover.getDefaultState), place.state)
         ) foreach (_.pipe(consumer))
       }
 
