@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *
@@ -23,4 +23,5 @@ import net.bdew.lib.property.SimpleUnlistedProperty
 import net.minecraft.util.math.{AxisAlignedBB, BlockPos}
 
 object BoundsProperty extends SimpleUnlistedProperty("bounds", classOf[AxisAlignedBB])
+
 object PosProperty extends SimpleUnlistedProperty("pos", classOf[BlockPos])

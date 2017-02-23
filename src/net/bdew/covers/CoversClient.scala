@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *
@@ -19,17 +19,15 @@
 
 package net.bdew.covers
 
-import net.bdew.covers.block.ItemCover
 import net.bdew.covers.config.Config
 import net.bdew.covers.rendering.{ExtendedModelLoader, MicroblockColorProvider, PartPlacementRender}
-import net.minecraft.client.renderer.block.model.ModelResourceLocation
-import net.minecraftforge.client.model.{ModelLoader, ModelLoaderRegistry}
+import net.minecraftforge.client.model.ModelLoaderRegistry
 
 object CoversClient {
   def preInit(): Unit = {
     ModelLoaderRegistry.registerLoader(ExtendedModelLoader)
     //fixme: is this still needed?
-//    ModelLoader.setCustomModelResourceLocation(ItemCover, 0, new ModelResourceLocation("covers:cover", "inventory"))
+    //    ModelLoader.setCustomModelResourceLocation(ItemCover, 0, new ModelResourceLocation("covers:cover", "inventory"))
     if (Config.showPlacementPreview)
       PartPlacementRender.init()
   }

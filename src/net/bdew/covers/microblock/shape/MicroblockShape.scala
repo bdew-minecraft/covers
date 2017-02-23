@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *
@@ -179,7 +179,8 @@ abstract class MicroblockShape(val name: String) extends MicroblockType {
 }
 
 abstract class MicroblockShapeImpl[T <: IPartSlot](name: String, slotClass: Class[T], validSlots1: Set[T], val defaultSlot1: T) extends MicroblockShape(name) {
-  override def validSlots: Set[IPartSlot] = validSlots1.toSet[IPartSlot] // why the fuck are scala sets invariant?..
+  override def validSlots: Set[IPartSlot] = validSlots1.toSet[IPartSlot]
+  // why the fuck are scala sets invariant?..
   override def defaultSlot: IPartSlot = defaultSlot1
 
   def validateSlot(s: IPartSlot): T = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *
@@ -37,8 +37,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.vertex.{DefaultVertexFormats, VertexFormat}
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{BlockRenderLayer, EnumFacing, ResourceLocation}
-import net.minecraftforge.client.{ForgeHooksClient, MinecraftForgeClient}
 import net.minecraftforge.client.model._
+import net.minecraftforge.client.{ForgeHooksClient, MinecraftForgeClient}
 import net.minecraftforge.common.model.{IModelState, TRSRTransformation}
 import net.minecraftforge.common.property.IExtendedBlockState
 import org.apache.commons.lang3.tuple.Pair

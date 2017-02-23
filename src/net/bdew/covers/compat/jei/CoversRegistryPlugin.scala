@@ -1,5 +1,5 @@
 /*
- * Copyright (c) bdew 2016.
+ * Copyright (c) bdew, 2016 - 2017
  *
  * This file is part of Simple Covers.
  *
@@ -25,8 +25,8 @@ import java.util.Collections
 import mezz.jei.api.recipe._
 import net.bdew.covers.block.ItemCover
 import net.bdew.covers.items.ItemSaw
-import net.bdew.covers.microblock.{InternalRegistry, MicroMaterialHelper}
 import net.bdew.covers.microblock.shape.{EdgeShape, FaceShape, MicroblockShape}
+import net.bdew.covers.microblock.{InternalRegistry, MicroMaterialHelper}
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
 
@@ -96,7 +96,7 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
     if (stack.getItem == ItemSaw && focus.getMode == IFocus.Mode.INPUT) return sawRecipes
 
     if (stack.getItem == ItemCover) {
-      ItemCover.getData(stack) filter (x=>MicroMaterialHelper.hasItemStack(x.material)) map { data =>
+      ItemCover.getData(stack) filter (x => MicroMaterialHelper.hasItemStack(x.material)) map { data =>
         if (focus.getMode == IFocus.Mode.INPUT) {
           var list = List.empty[MicroblockRecipe]
 
@@ -146,12 +146,13 @@ object CoversRegistryPlugin extends IRecipeRegistryPlugin {
       } getOrElse Collections.emptyList()
     } else {
       Option(Block.getBlockFromItem(stack.getItem)) flatMap {
-        block => InternalRegistry.getMaterial(block, stack.getItemDamage) filter (MicroMaterialHelper.hasItemStack) map { material =>
-          if (focus.getMode == IFocus.Mode.INPUT)
-            Collections.singletonList(new RecipeCutBlock(material))
-          else
-            Collections.singletonList(new RecipeCombineBlock(material))
-        }
+        block =>
+          InternalRegistry.getMaterial(block, stack.getItemDamage) filter (MicroMaterialHelper.hasItemStack) map { material =>
+            if (focus.getMode == IFocus.Mode.INPUT)
+              Collections.singletonList(new RecipeCutBlock(material))
+            else
+              Collections.singletonList(new RecipeCombineBlock(material))
+          }
       } getOrElse Collections.emptyList()
     }
   }

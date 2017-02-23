@@ -1,10 +1,20 @@
 /*
- * Copyright (c) bdew, 2013 - 2016
- * https://github.com/bdew/bdlib
+ * Copyright (c) bdew, 2016 - 2017
  *
- * This mod is distributed under the terms of the Minecraft Mod Public
- * License 1.0, or MMPL. Please check the contents of the license located in
- * http://bdew.net/minecraft-mod-public-license/
+ * This file is part of Simple Covers.
+ *
+ * Simple Covers is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Simple Covers is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Simple Covers.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.bdew.covers.rendering
