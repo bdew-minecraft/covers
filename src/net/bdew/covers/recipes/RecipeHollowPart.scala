@@ -23,7 +23,7 @@ import net.bdew.covers.block.ItemCover
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
-object RecipeHollowPart extends MicroblockRecipe {
+object RecipeHollowPart extends MicroblockRecipe("hollow_part", 3, 3) {
   override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
       first <- inv.matchItem(ItemCover).first()

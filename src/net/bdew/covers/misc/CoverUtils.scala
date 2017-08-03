@@ -30,15 +30,15 @@ object CoverUtils {
   def getAxis(vec: Vec3d, axis: Axis, neg: Boolean = false) = {
     if (neg) {
       axis match {
-        case Axis.X => vec.xCoord
-        case Axis.Y => vec.yCoord
-        case Axis.Z => vec.zCoord
+        case Axis.X => vec.x
+        case Axis.Y => vec.y
+        case Axis.Z => vec.z
       }
     } else {
       axis match {
-        case Axis.X => 1 - vec.xCoord
-        case Axis.Y => 1 - vec.yCoord
-        case Axis.Z => 1 - vec.zCoord
+        case Axis.X => 1 - vec.x
+        case Axis.Y => 1 - vec.y
+        case Axis.Z => 1 - vec.z
       }
     }
   }
@@ -76,7 +76,7 @@ object CoverUtils {
   ).withDefaultValue(-1)
 
   def shouldPartAffectBounds(part: CoverInfo, otherPart: CoverInfo): Boolean = {
-    if (!part.shape.getBoundingBox(part.slot, part.size).intersectsWith(otherPart.shape.getBoundingBox(otherPart.slot, otherPart.size))) return false
+    if (!part.shape.getBoundingBox(part.slot, part.size).intersects(otherPart.shape.getBoundingBox(otherPart.slot, otherPart.size))) return false
     val p1 = boundsPriorities(part.shape)
     val p2 = boundsPriorities(otherPart.shape)
     if (p1 == -1 || p2 == -1 || p2 < p1)
@@ -87,7 +87,7 @@ object CoverUtils {
       true
     else if (otherPart.size < part.size)
       false
-    else MCMultiPart.slotRegistry.getId(otherPart.slot) > MCMultiPart.slotRegistry.getId(part.slot) // Same priority and size
+    else MCMultiPart.slotRegistry.getID(otherPart.slot) > MCMultiPart.slotRegistry.getID(part.slot) // Same priority and size
   }
 
   def limitBoxes(boxes: List[AABBHiddenFaces], bounds: AxisAlignedBB): List[AABBHiddenFaces] = {
@@ -97,7 +97,7 @@ object CoverUtils {
     val maxX = bounds.maxX
     val maxY = bounds.maxY
     val maxZ = bounds.maxZ
-    boxes.filter(_.intersectsWith(bounds)).map(box =>
+    boxes.filter(_.intersects(bounds)).map(box =>
       new AABBHiddenFaces(
         if (box.minX < minX) minX else box.minX,
         if (box.minY < minY) minY else box.minY,

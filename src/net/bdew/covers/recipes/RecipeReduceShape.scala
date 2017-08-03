@@ -24,7 +24,7 @@ import net.bdew.covers.items.ItemSaw
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
-object RecipeReduceShape extends MicroblockRecipe {
+object RecipeReduceShape extends MicroblockRecipe("reduce_shape", 2, 1) {
   def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
       saw <- inv.matchItem(ItemSaw).first()

@@ -18,8 +18,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.7"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.9"
     }
 }
 
@@ -68,8 +68,8 @@ repositories {
         url "http://dvs1.progwml6.com/files/maven"
     }
     maven {
-        name "waila"
-        url "http://mobiusstrip.eu/maven"
+        name "HWYLA"
+        url "http://tehnut.info/maven"
     }
     maven {
         name "MCMultipart"
@@ -81,8 +81,8 @@ dependencies {
     compile "net.bdew:bdlib:${config.bdlib.version}-mc${config.minecraft.version}:dev"
 
     deobfCompile "mezz.jei:jei_${config.minecraft.version}:${config.jei.version}"
-//    deobfCompile "mcp.mobius.waila:Waila:${config.waila.version}"
-    deobfCompile "MCMultiPart2:MCMultiPart-exp:${config.mcmultipart.version}"
+    deobfCompile "mcp.mobius.waila:Hwyla:${config.hwyla.version}"
+    deobfCompile "MCMultiPart2:MCMultiPart:${config.mcmultipart.version}"
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens

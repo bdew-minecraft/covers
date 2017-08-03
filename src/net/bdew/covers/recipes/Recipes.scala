@@ -19,23 +19,17 @@
 
 package net.bdew.covers.recipes
 
-import net.minecraftforge.fml.common.registry.GameRegistry
-import net.minecraftforge.oredict.RecipeSorter
+import net.minecraftforge.fml.common.registry.ForgeRegistries
 
 object Recipes {
-  def regRecipe(recipe: MicroblockRecipe): Unit = {
-    GameRegistry.addRecipe(recipe)
-    RecipeSorter.register("bdew.covers:" + recipe.getClass.getSimpleName, recipe.getClass, RecipeSorter.Category.SHAPED, "")
-  }
-
   def register(): Unit = {
-    regRecipe(RecipeSplitBlock)
-    regRecipe(RecipeSplitPart)
-    regRecipe(RecipeCombineParts)
-    regRecipe(RecipeReduceShape)
-    regRecipe(RecipeCombineShapes)
-    regRecipe(RecipeTransformPart)
-    regRecipe(RecipeHollowPart)
-    regRecipe(RecipeGhostPart)
+    ForgeRegistries.RECIPES.register(RecipeSplitBlock)
+    ForgeRegistries.RECIPES.register(RecipeSplitPart)
+    ForgeRegistries.RECIPES.register(RecipeCombineParts)
+    ForgeRegistries.RECIPES.register(RecipeReduceShape)
+    ForgeRegistries.RECIPES.register(RecipeCombineShapes)
+    ForgeRegistries.RECIPES.register(RecipeTransformPart)
+    ForgeRegistries.RECIPES.register(RecipeHollowPart)
+    ForgeRegistries.RECIPES.register(RecipeGhostPart)
   }
 }

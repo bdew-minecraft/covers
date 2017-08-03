@@ -31,7 +31,7 @@ import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.OreDictionary
 
 @JEIPlugin
-class CoversJeiPlugin extends BlankModPlugin {
+class CoversJeiPlugin extends IModPlugin {
   override def registerItemSubtypes(subtypeRegistry: ISubtypeRegistry): Unit = {
     subtypeRegistry.registerSubtypeInterpreter(ItemCover, new ISubtypeInterpreter {
       override def getSubtypeInfo(itemStack: ItemStack): String =
@@ -41,8 +41,6 @@ class CoversJeiPlugin extends BlankModPlugin {
 
   override def register(registry: IModRegistry): Unit = {
     Covers.logInfo("Simple Covers JEI Plugin loaded")
-
-    registry.addRecipeHandlers(MicroblockRecipeHandler)
 
     registry.addRecipeRegistryPlugin(CoversRegistryPlugin)
 

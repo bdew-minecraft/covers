@@ -19,20 +19,23 @@
 
 package net.bdew.covers.recipes
 
+import net.bdew.covers.Covers
 import net.bdew.covers.block.ItemCover
 import net.bdew.covers.items.ItemSaw
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
-import net.minecraft.util.NonNullList
+import net.minecraft.util.{NonNullList, ResourceLocation}
 import net.minecraft.world.World
+import net.minecraftforge.registries.IForgeRegistryEntry
 
-abstract class MicroblockRecipe extends IRecipe {
+abstract class MicroblockRecipe(id: String, w: Int, h: Int) extends IForgeRegistryEntry.Impl[IRecipe] with IRecipe {
+  setRegistryName(new ResourceLocation(Covers.modId, id))
+
+  override def canFit(width: Int, height: Int): Boolean = width <= w && height <= h
 
   def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack]
-
-  override def getRecipeSize: Int = 9
 
   override def matches(inv: InventoryCrafting, worldIn: World): Boolean = verifyAndCreateResult(new RecipeMatcher(inv)).isDefined
 

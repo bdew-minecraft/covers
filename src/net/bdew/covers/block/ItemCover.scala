@@ -29,7 +29,7 @@ import net.bdew.lib.items.BaseItemBlock
 import net.bdew.lib.nbt.NBT
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.item.{Item, ItemStack}
+import net.minecraft.item.ItemStack
 import net.minecraft.util._
 import net.minecraft.util.math.{BlockPos, Vec3d}
 import net.minecraft.world.World
@@ -46,7 +46,7 @@ object ItemCover extends BaseItemBlock("cover", BlockCover) {
       materialId <- tag.get[String]("material")
       size <- tag.get[Int]("size")
       shape <- InternalRegistry.shapes.get(shapeId) if shape.validSizes.contains(size)
-      material <- Option(MCMultiPart.microMaterialRegistry.getObject(new ResourceLocation(materialId)))
+      material <- Option(MCMultiPart.microMaterialRegistry.getValue(new ResourceLocation(materialId)))
     } yield {
       Data(shape, material, size)
     }
@@ -65,9 +65,10 @@ object ItemCover extends BaseItemBlock("cover", BlockCover) {
   override def getItemStackDisplayName(stack: ItemStack): String =
     getData(stack) map (data => data.shape.getLocalizedName(data.material, data.size)) getOrElse super.getItemStackDisplayName(stack)
 
-  override def getSubItems(itemIn: Item, tab: CreativeTabs, list: NonNullList[ItemStack]): Unit =
-    for (material <- InternalRegistry.materials.values; shape <- InternalRegistry.shapes.values; size <- shape.validSizes)
-      list.add(makeStack(material, shape, size))
+  override def getSubItems(tab: CreativeTabs, list: NonNullList[ItemStack]): Unit =
+    if (this.isInCreativeTab(tab))
+      for (material <- InternalRegistry.materials.values; shape <- InternalRegistry.shapes.values; size <- shape.validSizes)
+        list.add(makeStack(material, shape, size))
 
   override def onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult = {
     val stack = player.getHeldItem(hand)

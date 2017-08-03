@@ -22,8 +22,7 @@ package net.bdew.covers
 import java.io.File
 
 import net.bdew.covers.config.{Blocks, Config, Items, TuningLoader}
-import net.bdew.covers.recipes.{RecipeSplitBlock, Recipes}
-import net.minecraft.item.crafting.CraftingManager
+import net.bdew.covers.recipes.Recipes
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.Mod.EventHandler
 import net.minecraftforge.fml.common.event._
@@ -61,7 +60,6 @@ object Covers {
   def init(event: FMLInitializationEvent) {
     TuningLoader.loadDelayed()
     Creative.init()
-    CraftingManager.getInstance().addRecipe(RecipeSplitBlock)
     Recipes.register()
   }
 

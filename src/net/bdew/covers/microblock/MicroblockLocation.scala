@@ -45,27 +45,27 @@ object MicroblockLocation {
 
     // If targeting the side of a block - switch to the adjacent block
 
-    if (place.xCoord == 0) {
+    if (place.x == 0) {
       place = place.addVector(1, 0, 0)
       blockPos = blockPos.add(-1, 0, 0)
       hitFace = hitFace.getOpposite
-    } else if (place.xCoord == 1) {
+    } else if (place.x == 1) {
       place = place.addVector(-1, 0, 0)
       blockPos = blockPos.add(1, 0, 0)
       hitFace = hitFace.getOpposite
-    } else if (place.yCoord == 0) {
+    } else if (place.y == 0) {
       place = place.addVector(0, 1, 0)
       blockPos = blockPos.add(0, -1, 0)
       hitFace = hitFace.getOpposite
-    } else if (place.yCoord == 1) {
+    } else if (place.y == 1) {
       place = place.addVector(0, -1, 0)
       blockPos = blockPos.add(0, 1, 0)
       hitFace = hitFace.getOpposite
-    } else if (place.zCoord == 0) {
+    } else if (place.z == 0) {
       place = place.addVector(0, 0, 1)
       blockPos = blockPos.add(0, 0, -1)
       hitFace = hitFace.getOpposite
-    } else if (place.zCoord == 1) {
+    } else if (place.z == 1) {
       place = place.addVector(0, 0, -1)
       blockPos = blockPos.add(0, 0, 1)
       hitFace = hitFace.getOpposite

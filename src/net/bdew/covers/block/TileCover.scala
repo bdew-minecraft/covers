@@ -41,8 +41,8 @@ class TileCover extends TileEntity {
       slotId <- tag.get[String]("slot")
       size <- tag.get[Int]("size")
       shape <- InternalRegistry.shapes.get(shapeId) if shape.validSizes.contains(size)
-      material <- Option(MCMultiPart.microMaterialRegistry.getObject(new ResourceLocation(materialId)))
-      slot <- Option(MCMultiPart.slotRegistry.getObject(new ResourceLocation(slotId)))
+      material <- Option(MCMultiPart.microMaterialRegistry.getValue(new ResourceLocation(materialId)))
+      slot <- Option(MCMultiPart.slotRegistry.getValue(new ResourceLocation(slotId)))
     } {
       data = CoverInfo(shape, slot, material, size)
     }

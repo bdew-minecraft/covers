@@ -27,7 +27,7 @@ import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.block.Block
 import net.minecraft.item.{ItemBlock, ItemStack}
 
-object RecipeSplitBlock extends MicroblockRecipe {
+object RecipeSplitBlock extends MicroblockRecipe("split_block", 1, 2) {
   override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
       saw <- inv.matchItem(ItemSaw).first()

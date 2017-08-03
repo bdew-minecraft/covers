@@ -25,7 +25,7 @@ import net.bdew.covers.microblock.shape.FaceShape
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
-object RecipeCombineParts extends MicroblockRecipe {
+object RecipeCombineParts extends MicroblockRecipe("combine_size", 2, 1) {
   override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
       first <- inv.matchItem(ItemCover).first()

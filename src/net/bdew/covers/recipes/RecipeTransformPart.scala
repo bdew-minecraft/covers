@@ -23,7 +23,7 @@ import net.bdew.covers.block.ItemCover
 import net.bdew.lib.crafting.RecipeMatcher
 import net.minecraft.item.ItemStack
 
-object RecipeTransformPart extends MicroblockRecipe {
+object RecipeTransformPart extends MicroblockRecipe("transform", 1, 1) {
   override def verifyAndCreateResult(inv: RecipeMatcher): Option[ItemStack] = {
     for {
       part <- inv.matchItem(ItemCover).first() if inv.allMatched

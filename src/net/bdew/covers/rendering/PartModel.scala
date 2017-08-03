@@ -20,10 +20,9 @@
 package net.bdew.covers.rendering
 
 import java.util
-import java.util.Collections
+import java.util.{Collections, Optional}
 import javax.vecmath.Matrix4f
 
-import com.google.common.base.{Function, Optional}
 import com.google.common.collect.ImmutableList
 import mcmultipart.api.microblock.MicroMaterial
 import net.bdew.covers.block.{CoverInfoProperty, ItemCover}
@@ -45,13 +44,14 @@ import org.apache.commons.lang3.tuple.Pair
 
 object PartModel extends IModel {
   override def getTextures: util.Collection[ResourceLocation] = ImmutableList.of()
-  override def bake(state: IModelState, format: VertexFormat, bakedTextureGetter: Function[ResourceLocation, TextureAtlasSprite]): IBakedModel =
+  override def bake(state: IModelState, format: VertexFormat, bakedTextureGetter: java.util.function.Function[ResourceLocation, TextureAtlasSprite]): IBakedModel =
     new PartBakedModel(format, state)
+
   override def getDefaultState: IModelState = TRSRTransformation.identity()
   override def getDependencies: util.Collection[ResourceLocation] = ImmutableList.of()
 }
 
-class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBakedModel with SmartItemModel with IPerspectiveAwareModel {
+class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBakedModel with SmartItemModel {
   lazy val missing = {
     val builder = new SimpleBakedModelBuilder(DefaultVertexFormats.ITEM)
     builder.texture = Client.missingIcon
@@ -92,7 +92,7 @@ class PartBakedModel(vertexFormat: VertexFormat, state: IModelState) extends IBa
   }
 
   override def handlePerspective(cameraTransformType: TransformType): Pair[_ <: IBakedModel, Matrix4f] = {
-    val tr = state.apply(Optional.of(cameraTransformType)).or(TRSRTransformation.identity)
+    val tr = state.apply(Optional.of(cameraTransformType)).orElse(TRSRTransformation.identity)
     if (tr != TRSRTransformation.identity)
       Pair.of(this, TRSRTransformation.blockCornerToCenter(tr).getMatrix)
     else

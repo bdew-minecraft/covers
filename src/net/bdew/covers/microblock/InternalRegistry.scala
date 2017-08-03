@@ -42,7 +42,7 @@ object InternalRegistry {
 
   def registerMaterial(block: Block, meta: Int): MicroMaterial = {
     val material = new MicroMaterialBlock(block.getStateFromMeta(meta))
-    val registered = MCMultiPart.microMaterialRegistry.getObject(material.getRegistryName)
+    val registered = MCMultiPart.microMaterialRegistry.getValue(material.getRegistryName)
     val actualMaterial = if (registered == null) {
       MCMultiPart.microMaterialRegistry.register(material)
       material
