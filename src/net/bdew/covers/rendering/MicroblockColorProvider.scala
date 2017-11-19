@@ -39,9 +39,9 @@ object MicroblockColorProvider extends IBlockColor with IItemColor {
     } else -1
   }
 
-  override def getColorFromItemstack(stack: ItemStack, tintIndex: Int): Int = {
-    ItemCover.getData(stack) map { data =>
-      Client.blockColors.colorMultiplier(data.material.getDefaultState, null, null, tintIndex)
+  override def colorMultiplier(itemStack: ItemStack, index: Int) = {
+    ItemCover.getData(itemStack) map { data =>
+      Client.blockColors.colorMultiplier(data.material.getDefaultState, null, null, index)
     } getOrElse -1
   }
 

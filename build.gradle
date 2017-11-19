@@ -19,13 +19,11 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.9"
     }
 }
 
 apply plugin: 'scala'
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'com.matthewprenger.cursegradle'
 
 file "build.properties" withReader {
     def prop = new Properties()
@@ -148,52 +146,4 @@ artifacts {
     archives sourceJarReal
     archives deobfJar
     archives apiJar
-}
-
-apply plugin: 'maven-publish'
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact deobfJar
-            artifact sourceJarReal
-            artifact apiJar
-        }
-    }
-    repositories {
-        maven {
-            url "file://var/www/maven"
-        }
-    }
-}
-
-curseforge {
-    apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
-    project {
-        id = config.curseforge.id
-
-        releaseType = "alpha"
-        changelog = project.hasProperty("changelog") ? project.changelog : "No changelog available"
-
-        addGameVersion config.minecraft.version
-
-        mainArtifact(jar) {
-            displayName = "Covers ${simpleVersion} (MC ${config.minecraft.version})"
-        }
-
-        addArtifact(deobfJar) {
-            displayName = "Covers ${simpleVersion} Deobfuscated (MC ${config.minecraft.version})"
-        }
-
-        addArtifact(sourceJarReal) {
-            displayName = "Covers ${simpleVersion} Source (MC ${config.minecraft.version})"
-        }
-
-        relations {
-            requiredLibrary 'bdlib'
-            requiredLibrary 'mcmultipart'
-            optionalLibrary 'waila'
-            optionalLibrary 'just-enough-items-jei'
-        }
-    }
 }
