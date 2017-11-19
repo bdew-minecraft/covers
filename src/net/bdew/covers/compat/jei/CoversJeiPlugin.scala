@@ -36,6 +36,8 @@ class CoversJeiPlugin extends IModPlugin {
     subtypeRegistry.registerSubtypeInterpreter(ItemCover, new ISubtypeInterpreter {
       override def getSubtypeInfo(itemStack: ItemStack): String =
         ItemCover.getData(itemStack).map(d => "%s/%s/%d".format(d.material.getRegistryName, d.shape.name, d.size)).orNull
+
+      override def apply(itemStack: ItemStack) = ???
     })
   }
 
